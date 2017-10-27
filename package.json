@@ -1,0 +1,28 @@
+{
+  "name": "opinalia",
+  "version": "1.0.0",
+  "description": "This is a project for the subject EA",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EAGrup4/Server.git"
+  },
+  "author": "Grup04",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/EAGrup4/Server/issues"
+  },
+  "homepage": "https://github.com/EAGrup4/Server#readme",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "cookie-parser": "^1.4.3",
+	"express": "^4.16.1",
+    "mongodb": "^2.2.31",
+    "mongoose": "^4.12.1",
+    "morgan": "^1.9.0",
+    "serve-favicon": "^2.4.5"
+  }
+}
