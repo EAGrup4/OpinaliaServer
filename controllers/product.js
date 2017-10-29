@@ -32,7 +32,7 @@ exports.insertProduct= function(req, res) {
 
 //update methods
 exports.updateProduct = function(req, res) {
-    Product.findOneAndUpdate({_id:req.params.productId}, {$addToSet:req.body}, {new: true}, function(err, product) {
+    Product.findOneAndUpdate({_id:req.params.productId}, req.body, {new: true}, function(err, product) {
         if (err)
             res.send(err);
         res.json(product);
