@@ -22,6 +22,7 @@ exports.findByEmail = function(req, res) {
 //insert methods
 exports.insertUser = function(req, res) {
     var newUser = new User(req.body);
+	newUser.admin=false;
    newUser.save(function(err, user) {
         if (err)
             res.send(err);
