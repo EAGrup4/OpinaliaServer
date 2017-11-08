@@ -6,7 +6,7 @@ exports.listAllProducts = function(req, res) {
     Product.find({}, function(err, products) {
         if (err)
             res.send(err);
-        res.json(products);
+        res.json(200, {products});
     });
 };
 
@@ -14,7 +14,7 @@ exports.findByName = function(req, res) {
     Product.find({name:req.params.productName}, function(err, product) {
         if (err)
             res.send(err);
-        res.json(product);
+        res.json(200, {product});
     });
 };
 
@@ -24,8 +24,8 @@ exports.insertProduct= function(req, res) {
     var newProduct = new Product(req.body);
    newProduct.save(function(err, product) {
         if (err)
-            res.send(err);
-        res.json(product);
+            res.status(500).send({message: `Error when saving in database: ${err}`});
+        res.json(200, {product});
     });
 };
 
@@ -35,24 +35,23 @@ exports.updateProduct = function(req, res) {
     Product.findOneAndUpdate({_id:req.params.productId}, req.body, {new: true}, function(err, product) {
         if (err)
             res.send(err);
-        res.json(product);
+        res.json(200, {product});
     });
 };
 
-exports.updateProductArray = function(req, res) {
+/*exports.updateProductArray = function(req, res) {
     Product.findOneAndUpdate({_id:req.params.productId}, {$push: {images: req.body.comments}}, {new: true}, function(err, product) {
         if (err)
             res.send(err);
         res.json(product);
     });
-};
-
+};*/
 
 //delete methods
 exports.deleteProduct = function(req, res) {
     Product.findByIdAndRemove(req.params.productId, function(err, product) {
         if (err)
             res.send(err);
-        res.json({ message: 'Product successfully deleted' });
+        res.json(200, { message: 'Product successfully deleted' });
     });
 };
