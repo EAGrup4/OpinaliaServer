@@ -12,8 +12,10 @@ router.get('/all',users.listAllUsers);
 router.get('/:email',users.findByEmail);
 
 //POST REQUESTS
-//insert user
+//register a user
 router.post('/register', users.registerUser);
+//login a user
+router.post('/login', users.loginUser);
 
 //UPDATE REQUESTS
 //update user by id

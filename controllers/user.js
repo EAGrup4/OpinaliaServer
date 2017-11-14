@@ -28,6 +28,22 @@ exports.registerUser = function(req, res) {
     });
 };
 
+exports.loginUser = function(req,res){
+    var newUser = new User(req.body);
+    console.log(newUser);
+    User.find({email:newUser.email, password:newUser.password}, function(err,user){
+        if (err)
+            res.send(err);
+        console.log(user);
+        if (user.length==0)
+            res.status(500).send({message: 'User not registered'});
+        else
+            res.json(200,{user});
+    });
+
+
+};
+
 
 //update methods
 exports.updateUser = function(req, res) {
