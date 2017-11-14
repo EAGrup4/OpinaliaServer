@@ -17,7 +17,7 @@ var product = mongoose.Schema({
     company: String,
 	specifications:[],
 	images:[imageSchema],
-	comments:[ratings]
+	ratings:[ratings]
 	
 	},{collection:'products'});
 

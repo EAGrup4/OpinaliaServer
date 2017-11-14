@@ -39,13 +39,13 @@ exports.updateProduct = function(req, res) {
     });
 };
 
-/*exports.updateProductArray = function(req, res) {
-    Product.findOneAndUpdate({_id:req.params.productId}, {$push: {images: req.body.comments}}, {new: true}, function(err, product) {
+exports.updateProductArray = function(req, res) {
+    Product.findOneAndUpdate({_id:req.params.productId}, {$push: {ratings: req.body.ratings}}, {new: true}, function(err, product) {
         if (err)
             res.send(err);
         res.json(product);
     });
-};*/
+};
 
 //delete methods
 exports.deleteProduct = function(req, res) {
