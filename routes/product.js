@@ -18,7 +18,6 @@ router.post('/add', products.insertProduct);
 //UPDATE REQUESTS
 //update product by id
 router.post('/:productId', products.updateProduct);
-router.post('/push/:productId', products.updateProductArray);
 
 //DELETE REQUESTS
 //delete product by id

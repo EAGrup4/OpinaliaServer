@@ -9,7 +9,6 @@ exports.listAllUsers = function(req, res) {
         res.json(200, {users});
     });
 };
-ç
 exports.findByEmail = function(req, res) {
     User.find({email:req.params.email}, function(err, user) {
         if (err)
@@ -20,7 +19,7 @@ exports.findByEmail = function(req, res) {
 
 
 //insert methods
-exports.insertUser = function(req, res) {
+exports.registerUser = function(req, res) {
     var newUser = new User(req.body);
    newUser.save(function(err, user) {
         if (err)

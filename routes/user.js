@@ -13,7 +13,7 @@ router.get('/:email',users.findByEmail);
 
 //POST REQUESTS
 //insert user
-router.post('/add', users.insertUser);
+router.post('/register', users.registerUser);
 
 //UPDATE REQUESTS
 //update user by id
