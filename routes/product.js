@@ -20,7 +20,7 @@ router.post('/add', products.insertProduct);
 router.post('/:productId', products.updateProduct);
 
 //añadir valoracion a producto
-router.post('/push/:productId', products.updateProductArray);
+router.post('/rating/:productId', products.addRating);
 //DELETE REQUESTS
 //delete product by id
 router.delete('/:productId',products.deleteProduct);

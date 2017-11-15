@@ -39,7 +39,7 @@ exports.updateProduct = function(req, res) {
     });
 };
 
-exports.updateProductArray = function(req, res) {
+exports.addRating = function(req, res) {
     Product.findOneAndUpdate({_id:req.params.productId}, {$push: {ratings: req.body.ratings}}, {new: true}, function(err, product) {
         if (err)
             res.send(err);
