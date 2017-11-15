@@ -6,7 +6,7 @@ exports.listAllProducts = function(req, res) {
     Product.find({}, function(err, products) {
         if (err)
             res.send(err);
-        res.json(200, {products});
+        res.json(200, products);
     });
 };
 
@@ -14,7 +14,7 @@ exports.findByName = function(req, res) {
     Product.find({name:req.params.productName}, function(err, product) {
         if (err)
             res.send(err);
-        res.json(200, {product});
+        res.json(200, product);
     });
 };
 
@@ -24,8 +24,8 @@ exports.insertProduct= function(req, res) {
     var newProduct = new Product(req.body);
    newProduct.save(function(err, product) {
         if (err)
-            res.status(500).send({message: `Error when saving in database: ${err}`});
-        res.json(200, {product});
+            res.status(500).send({message: 'Error when saving in database: ${err}'});
+        res.json(200, product);
     });
 };
 
@@ -35,7 +35,7 @@ exports.updateProduct = function(req, res) {
     Product.findOneAndUpdate({_id:req.params.productId}, req.body, {new: true}, function(err, product) {
         if (err)
             res.send(err);
-        res.json(200, {product});
+        res.json(200, product);
     });
 };
 
