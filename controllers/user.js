@@ -23,18 +23,16 @@ exports.registerUser = function(req, res) {
     var newUser = new User(req.body);
    newUser.save(function(err, user) {
         if (err)
-            res.status(500).send({message: 'Error when saving in database: ${err}'});
+            res.status(500).send({message: `Error when saving in database: ${err}`});
         res.json(200, user);
     });
 };
 
 exports.loginUser = function(req,res){
     var newUser = new User(req.body);
-    console.log(newUser);
     User.find({email:newUser.email, password:newUser.password}, function(err,user){
         if (err)
             res.send(err);
-        console.log(user);
         if (user.length==0)
             res.status(500).send({message: 'User not registered'});
         else

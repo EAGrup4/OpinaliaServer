@@ -31,10 +31,11 @@ app.use('/users', userRoutes);
 app.use('/products', productRoutes);
 
 //conect the database
+mongoose.Promise = require('bluebird');
 mongoose.connect('mongodb://localhost:27017/opinalia',  { useMongoClient: true });
 console.log("Database connected");
 
 //start server
-app.listen(3001);
+app.listen(3000);
 
 console.log("Server listeneing on port 3000");

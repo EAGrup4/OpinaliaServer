@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/EAGrup4/Server#readme",
   "dependencies": {
+    "bluebird": "^3.5.1",
     "body-parser": "^1.18.2",
     "cookie-parser": "^1.4.3",
     "express": "^4.16.1",
