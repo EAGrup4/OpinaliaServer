@@ -4,23 +4,29 @@ var mongoose = require('mongoose');
 var users = require('../controllers/user');
 
 
-
 //GET REQUESTS
-//get all the users
+//Get all the users
 router.get('/all',users.listAllUsers);
-//get user by id
-router.get('/:email',users.findByEmail);
+//Get a user by email
+router.get('/email/:email',users.findByEmail);
+//Get a user by email
+router.get('/name/:name',users.findByName);
+
 
 //POST REQUESTS
-//insert user
-router.post('/add', users.insertUser);
+//Register a new user
+router.post('/register', users.registerUser);
+//Login a user
+router.post('/login', users.loginUser);
+
 
 //UPDATE REQUESTS
-//update user by id
+//Update user by id
 router.post('/:userId', users.updateUser);
 
+
 //DELETE REQUESTS
-//delete user by id
+//Delete user by id
 router.delete('/:userId',users.deleteUser);
 
 
