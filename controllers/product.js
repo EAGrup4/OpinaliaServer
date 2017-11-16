@@ -1,7 +1,8 @@
 var mongoose = require('mongoose');
 var Product = mongoose.model('Product');
 
-//read methods
+
+
 exports.listAllProducts = function(req, res) {
     Product.find({}, function(err, products) {
         if (err)
@@ -19,8 +20,7 @@ exports.findByName = function(req, res) {
 };
 
 
-//insert methods
-exports.insertProduct= function(req, res) {
+exports.addProduct= function(req, res) {
     var newProduct = new Product(req.body);
    newProduct.save(function(err, product) {
         if (err)
@@ -30,7 +30,6 @@ exports.insertProduct= function(req, res) {
 };
 
 
-//update methods
 exports.updateProduct = function(req, res) {
     Product.findOneAndUpdate({_id:req.params.productId}, req.body, {new: true}, function(err, product) {
         if (err)
@@ -47,7 +46,6 @@ exports.addRating = function(req, res) {
     });
 };
 
-//delete methods
 exports.deleteProduct = function(req, res) {
     Product.findByIdAndRemove(req.params.productId, function(err, product) {
         if (err)

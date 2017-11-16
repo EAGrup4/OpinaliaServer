@@ -1,7 +1,8 @@
 var mongoose = require('mongoose');
 var User = mongoose.model('User');
 
-//read methods
+
+
 exports.listAllUsers = function(req, res) {
     User.find({}, function(err, users) {
         if (err)
@@ -16,9 +17,14 @@ exports.findByEmail = function(req, res) {
         res.json(200, user);
     });
 };
+exports.findByName = function(req, res) {
+    User.find({name:req.params.name}, function(err, user) {
+        if (err)
+            res.send(err);
+        res.json(200, user);
+    });
+};
 
-
-//insert methods
 exports.registerUser = function(req, res) {
     var newUser = new User(req.body);
    newUser.save(function(err, user) {
@@ -42,8 +48,6 @@ exports.loginUser = function(req,res){
 
 };
 
-
-//update methods
 exports.updateUser = function(req, res) {
     User.findOneAndUpdate({_id:req.params.userId}, req.body, {new: true}, function(err, user) {
         if (err)
@@ -52,8 +56,6 @@ exports.updateUser = function(req, res) {
     });
 };
 
-
-//delete methods
 exports.deleteUser = function(req, res) {
     User.findByIdAndRemove(req.params.userId, function(err, user) {
         if (err)

@@ -4,25 +4,27 @@ var mongoose = require('mongoose');
 var products = require('../controllers/product');
 
 
-
 //GET REQUESTS
-//get all the products
+//Get all the products
 router.get('/all',products.listAllProducts);
-//get product by id
+//Get a product by name
 router.get('/:productName',products.findByName);
 
+
 //POST REQUESTS
-//insert product
-router.post('/add', products.insertProduct);
+//Add a new product
+router.post('/add', products.addProduct);
+
 
 //UPDATE REQUESTS
-//update product by id
+//Update a product by Id
 router.post('/:productId', products.updateProduct);
-
-//añadir valoracion a producto
+//Add rating to a product
 router.post('/rating/:productId', products.addRating);
+
+
 //DELETE REQUESTS
-//delete product by id
+//Delete a product by Id
 router.delete('/:productId',products.deleteProduct);
 
 
