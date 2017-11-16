@@ -8,9 +8,9 @@ var users = require('../controllers/user');
 //Get all the users
 router.get('/all',users.listAllUsers);
 //Get a user by email
-router.get('/:email',users.findByEmail);
+router.get('/email/:email',users.findByEmail);
 //Get a user by email
-router.get('/:name',users.findByName);
+router.get('/name/:name',users.findByName);
 
 
 //POST REQUESTS
