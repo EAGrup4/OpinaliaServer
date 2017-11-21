@@ -1,5 +1,6 @@
 var mongoose = require('mongoose');
 var User = mongoose.model('User');
+const bcrypt = require('bcrypt-nodejs');
 
 
 
@@ -26,27 +27,59 @@ exports.findByName = function(req, res) {
 };
 
 exports.registerUser = function(req, res) {
-    var newUser = new User(req.body);
-   newUser.save(function(err, user) {
-        if (err)
-            res.status(500).send({message: `Error when saving in database: ${err}`});
-        res.status(200).json(user);
+    bcrypt.hash(req.body.password, null, null, function (err, hash) {
+        var newUser = new User(req.body);
+        newUser.password = hash;
+        newUser.save(function (err, user) {
+            if (err)
+                res.status(500).send({message: `Error when saving in database: ${err}`});
+            res.status(200).json(user);
+        });
     });
 };
 
+exports.loginUser=function(req,res){
+    var params = req.body;
+    var email = params.email;
+    var password = params.password;
+    User.findOne({email: email.toLowerCase()}, (err, user) =>{
+        if(err){
+            res.status(500).send({message: 'Error al comprobar el usuario'});
+        }else{
+            if(user){
+                bcrypt.compare(password,user.password, (err, check)=>{
+                    if(check) {
+                        res.status(200).send({user});
+                    }else{
+                        res.status(400).send({message: 'El usuario no ha podido loguearse'});
+                    }
+                })
+            }else{
+                res.status(404).send({message: 'El usuario no ha podido loguearse'});
+            }
+        }
+    });
+};
+/*
 exports.loginUser = function(req,res){
     var newUser = new User(req.body);
-    User.find({email:newUser.email, password:newUser.password}, function(err,user){
+    User.find({email:newUser.email}, function(err,user){
         if (err)
             res.status(500).send({message: `Error when finding in database: ${err}`});
         if (user.length==0)
             res.status(500).send({message: 'User not registered'});
         else
-            res.status(200).json(user);
+            bcrypt.compare(req.body.password,user.password, (err, check)=> {
+                if(check){
+                    res.status(200).json(user);};
+
+                else
+                    res.status(400).send({message: 'Not correct login'});
+                 });
     });
 
-
 };
+*/
 
 exports.updateUser = function(req, res) {
     User.findOneAndUpdate({_id:req.params.userId}, req.body, {new: true}, function(err, user) {
