@@ -44,18 +44,18 @@ exports.loginUser=function(req,res){
     var password = params.password;
     User.findOne({email: email.toLowerCase()}, (err, user) =>{
         if(err){
-            res.status(500).send({message: 'Error al comprobar el usuario'});
+            res.status(500).send({message: 'Incorrect credentials'});
         }else{
             if(user){
                 bcrypt.compare(password,user.password, (err, check)=>{
                     if(check) {
                         res.status(200).send({user});
                     }else{
-                        res.status(400).send({message: 'El usuario no ha podido loguearse'});
+                        res.status(400).send({message: 'Error when checking user'});
                     }
                 })
             }else{
-                res.status(404).send({message: 'El usuario no ha podido loguearse'});
+                res.status(404).send({message: 'Login incorrect'});
             }
         }
     });
