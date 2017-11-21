@@ -36,6 +36,6 @@ mongoose.connect('mongodb://localhost:27017/opinalia',  { useMongoClient: true }
 console.log("Database connected");
 
 //start server
-app.listen(3000);
+app.listen(3001);
 
 console.log("Server listeneing on port 3000");

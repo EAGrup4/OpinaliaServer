@@ -19,6 +19,51 @@ exports.findByName = function(req, res) {
     });
 };
 
+exports.findText = function(req, res) {
+    if (req.params.category === 'Todos' && req.params.text === '0'){
+        Product.find({}, function(err, products) {
+            if (err)
+                res.status(500).send({message: `Error when finding in database: ${err}`});
+            res.status(200).json(products);
+        });
+    } else if (req.params.category === 'Todos'){
+        Product.find({name:req.params.text}, function(err, product) {
+            if (product.length === 0){
+                Product.find({company:req.params.text}, function(err, product) {
+                    if (product.length === 0) {
+                        res.status(500).send({message: `Error when finding in database: ${err}`});
+                    } else {
+                        res.status(200).json(product);
+                    }
+                });
+            } else {
+                res.status(200).json(product);
+            }
+        });
+    } else if (req.params.text === '0') {
+        Product.find({category:req.params.category}, function(err, product) {
+            if (product.length === 0) {
+                res.status(500).send({message: `Error when finding in database: ${err}`});
+            } else {
+                res.status(200).json(product);
+            }
+        });
+    } else {
+        Product.find({name: req.params.text, category: req.params.category}, function (err, product) {
+            if (product.length === 0) {
+                Product.find({company: req.params.text, category: req.params.category}, function (err, product) {
+                    if (product.length === 0) {
+                        res.status(500).send({message: `Error when finding in database: ${err}`});
+                    } else {
+                        res.status(200).json(product);
+                    }
+                });
+            } else {
+                res.status(200).json(product);
+            }
+        });
+    }
+};
 
 exports.addProduct= function(req, res) {
     var newProduct = new Product(req.body);

@@ -9,7 +9,8 @@ var products = require('../controllers/product');
 router.get('/all',products.listAllProducts);
 //Get a product by name
 router.get('/:productName',products.findByName);
-
+//Get a product by name, category or company
+router.get('/searchProduct/:text/:category', products.findText);
 
 //POST REQUESTS
 //Add a new product
@@ -26,6 +27,7 @@ router.post('/rating/:productId', products.addRating);
 //DELETE REQUESTS
 //Delete a product by Id
 router.delete('/:productId',products.deleteProduct);
+
 
 
 module.exports=router;
