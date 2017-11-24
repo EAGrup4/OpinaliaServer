@@ -51,7 +51,7 @@ exports.loginUser=function(req,res){
                 bcrypt.compare(password,user.password, (err, check)=>{
                     if(check) {
                         if(params.gettoken){
-                        res.status(200).send({
+                        res.status(200).json({
                             token: jwt.createToken(user)
                         })
                         }else{
@@ -111,13 +111,13 @@ exports.updateUser = function(req, res){
 }*/
 
 exports.updateUser = function(req, res) {
-    var userId = req.params.id;
+    var userId = req.params.userId;
     var update = req.body;
-
+    
     //ESTO EN TEORIA COMPRUEBA SI EL ID QUE LE HEMOS PASADO POR PARAMETROS COINCIDE CON EL ID DEL TOKEN
-  /*  if(userId != req.user.sub){
+   if(userId != req.user.sub){
         res.status(500).send({message: 'You do not have enough capabilities'});
-    }*/
+    }
     User.findOneAndUpdate(userId, update, {new: true}, function(err, user) {
         if (err)
             res.status(500).send({message: `Error when saving in database: ${err}`});
