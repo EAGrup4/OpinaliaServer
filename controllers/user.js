@@ -1,6 +1,7 @@
 var mongoose = require('mongoose');
 var User = mongoose.model('User');
-const bcrypt = require('bcrypt-nodejs');
+var bcrypt = require('bcrypt-nodejs');
+var jwt = require('../services/jwt');
 
 
 
@@ -37,21 +38,28 @@ exports.registerUser = function(req, res) {
         });
     });
 };
-
+//CUANDO HACES LOGIN TE DEVUELVE EL TOKEN QUE LUEGO TENDRAS QUE PASAR X CABECERAS EN LAS PETICIONES
 exports.loginUser=function(req,res){
     var params = req.body;
     var email = params.email;
     var password = params.password;
     User.findOne({email: email.toLowerCase()}, (err, user) =>{
         if(err){
-            res.status(500).send({message: 'Incorrect credentials'});
+            res.status(500).send({message: 'Error when checking in database'});
         }else{
             if(user){
                 bcrypt.compare(password,user.password, (err, check)=>{
                     if(check) {
-                        res.status(200).send({user});
+                        if(params.gettoken){
+                        res.status(200).send({
+                            token: jwt.createToken(user)
+                        })
+                        }else{
+                            res.status(200).send({user});
+                        }
+
                     }else{
-                        res.status(400).send({message: 'Error when checking user'});
+                        res.status(400).send({message: 'Incorrect credentials'});
                     }
                 })
             }else{
@@ -59,8 +67,8 @@ exports.loginUser=function(req,res){
             }
         }
     });
-};
-/*
+}
+/* LOGIN SIN ENVIAR EL TOKEN
 exports.loginUser = function(req,res){
     var newUser = new User(req.body);
     User.find({email:newUser.email}, function(err,user){
@@ -80,9 +88,37 @@ exports.loginUser = function(req,res){
 
 };
 */
+/*
+exports.updateUser = function(req, res){
+    var userId = req.params.id;
+    var update = req.body;
+
+    if(userId != req.user.sub){
+        res.status(500).send({message: 'No tienes permisos para actualizar al usuario'});
+    }
+
+    User.findByIdAndUpdate(userId,update,{new: true}, function(err, userUpdated){
+        if(err){
+            res.status(500).send({message: 'Error al actualizar el usuario'});
+        }else{
+            if(!userUpdated){
+                res.status(400).send({message: 'No se ha podido actualizar al usuario'});
+            }else{
+                res.status(200).send({user: userUpdated});
+            }
+        }
+    })
+}*/
 
 exports.updateUser = function(req, res) {
-    User.findOneAndUpdate({_id:req.params.userId}, req.body, {new: true}, function(err, user) {
+    var userId = req.params.id;
+    var update = req.body;
+
+    //ESTO EN TEORIA COMPRUEBA SI EL ID QUE LE HEMOS PASADO POR PARAMETROS COINCIDE CON EL ID DEL TOKEN
+  /*  if(userId != req.user.sub){
+        res.status(500).send({message: 'No tienes permisos para actualizar al usuario'});
+    }*/
+    User.findOneAndUpdate(userId, update, {new: true}, function(err, user) {
         if (err)
             res.status(500).send({message: `Error when saving in database: ${err}`});
         res.status(200).json(user);

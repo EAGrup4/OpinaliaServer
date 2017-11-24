@@ -21,7 +21,7 @@ router.post('/add', products.addProduct);
 //Update a product by Id
 router.post('/:productId', products.updateProduct);
 //Add rating to a product
-router.post('/rating/:productId', products.addRating);
+router.put('/rating/:productId', products.addRating);
 
 
 //DELETE REQUESTS

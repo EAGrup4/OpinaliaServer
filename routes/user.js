@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var mongoose = require('mongoose');
 var users = require('../controllers/user');
+var md_auth = require('../middlewares/authenticated')
 
 
 //GET REQUESTS
@@ -22,7 +23,7 @@ router.post('/login', users.loginUser);
 
 //UPDATE REQUESTS
 //Update user by id
-router.post('/:userId', users.updateUser);
+router.post('/:userId', md_auth.ensureAuth, users.updateUser);
 
 
 //DELETE REQUESTS
