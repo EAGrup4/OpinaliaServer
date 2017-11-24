@@ -94,15 +94,15 @@ exports.updateUser = function(req, res){
     var update = req.body;
 
     if(userId != req.user.sub){
-        res.status(500).send({message: 'No tienes permisos para actualizar al usuario'});
+        res.status(500).send({message: 'You do not have enough capabilities'});
     }
 
     User.findByIdAndUpdate(userId,update,{new: true}, function(err, userUpdated){
         if(err){
-            res.status(500).send({message: 'Error al actualizar el usuario'});
+            res.status(500).send({message: 'Error in updating user'});
         }else{
             if(!userUpdated){
-                res.status(400).send({message: 'No se ha podido actualizar al usuario'});
+                res.status(400).send({message: 'User can not be updated'});
             }else{
                 res.status(200).send({user: userUpdated});
             }
@@ -116,7 +116,7 @@ exports.updateUser = function(req, res) {
 
     //ESTO EN TEORIA COMPRUEBA SI EL ID QUE LE HEMOS PASADO POR PARAMETROS COINCIDE CON EL ID DEL TOKEN
   /*  if(userId != req.user.sub){
-        res.status(500).send({message: 'No tienes permisos para actualizar al usuario'});
+        res.status(500).send({message: 'You do not have enough capabilities'});
     }*/
     User.findOneAndUpdate(userId, update, {new: true}, function(err, user) {
         if (err)
