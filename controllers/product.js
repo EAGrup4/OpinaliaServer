@@ -5,7 +5,9 @@ var Rating = mongoose.model('Rating')
 
 
 exports.listAllProducts = function(req, res) {
-    Product.find({}, function(err, products) {
+    Product.find()
+    .populate({ path: 'ratings.userId' })
+    .exec({}, function(err, products) {
         if (err)
             res.status(500).send({message: `Error when finding in database: ${err}`});
         res.status(200).json(products);
