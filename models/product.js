@@ -6,9 +6,10 @@ var User = mongoose.model('User')
 var imageSchema = mongoose.Schema({src:String},{ _id : false });
 
 var ratings = mongoose.Schema({
+	productId:{type:Schema.ObjectId, ref: 'Product'},
 	userId:{type:Schema.ObjectId, ref: 'User'},
 	comment:String,
-	rate:Number,
+	rate:{type:Number,required : true},
 	date: { type: Date, default: Date.now },
 	},{ _id : false });
 

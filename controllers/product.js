@@ -72,6 +72,7 @@ exports.addProduct= function(req, res) {
         if (err)
             res.status(500).send({message: `Error when saving in database: ${err}`});
         res.status(200).json(product);
+        
     });
 };
 
@@ -91,6 +92,24 @@ exports.addRating = function(req, res) {
 
         product.numRates++;
         product.totalRate=product.totalRate+req.body.rate;
+        product.avgRate=product.totalRate/product.numRates;
+
+        Product.findOneAndUpdate({_id:req.params.productId}, product, {new: true}, function(err, product) {
+        if (err)
+            res.status(500).send({message: `Error when finding in database: ${err}`});
+        res.status(200).json(product);
+    });
+        //res.status(200).json(product);
+    });
+};
+
+exports.deleteRating = function(req, res) {   
+    Product.findOneAndUpdate({_id:req.params.productId}, {$pull: {ratings: req.body}}, {new: true}, function(err, product) {
+        if (err)
+            res.status(500).send({message: `Error when finding in database: ${err}`});
+
+        product.numRates--;
+        product.totalRate=product.totalRate-req.body.rate;
         product.avgRate=product.totalRate/product.numRates;
 
         Product.findOneAndUpdate({_id:req.params.productId}, product, {new: true}, function(err, product) {

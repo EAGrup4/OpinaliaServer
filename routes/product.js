@@ -22,11 +22,15 @@ router.post('/add', products.addProduct);
 router.post('/:productId', products.updateProduct);
 //Add rating to a product
 router.post('/rating/:productId', products.addRating);
+//Delete rating from product
+router.post('/pullRating/:productId/', products.deleteRating);
 
 
 //DELETE REQUESTS
 //Delete a product by Id
 router.delete('/:productId',products.deleteProduct);
+
+router.post('/rating/:productId', products.addRating);
 
 
 
