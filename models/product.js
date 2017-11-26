@@ -8,6 +8,7 @@ var imageSchema = mongoose.Schema({src:String},{ _id : false });
 var ratings = mongoose.Schema({
 	productId:{type:Schema.ObjectId, ref: 'Product'},
 	userId:{type:Schema.ObjectId, ref: 'User'},
+	title:String,
 	comment:String,
 	rate:{type:Number,required : true},
 	date: { type: Date, default: Date.now },

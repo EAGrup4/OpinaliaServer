@@ -92,7 +92,7 @@ exports.addRating = function(req, res) {
 
         product.numRates++;
         product.totalRate=product.totalRate+req.body.rate;
-        product.avgRate=product.totalRate/product.numRates;
+        product.avgRate=(product.totalRate/product.numRates).toFixed(1);
 
         Product.findOneAndUpdate({_id:req.params.productId}, product, {new: true}, function(err, product) {
         if (err)
@@ -110,7 +110,7 @@ exports.deleteRating = function(req, res) {
 
         product.numRates--;
         product.totalRate=product.totalRate-req.body.rate;
-        product.avgRate=product.totalRate/product.numRates;
+        product.avgRate=(product.totalRate/product.numRates).toFixed(1);
 
         Product.findOneAndUpdate({_id:req.params.productId}, product, {new: true}, function(err, product) {
         if (err)
