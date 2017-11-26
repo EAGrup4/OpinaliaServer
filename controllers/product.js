@@ -1,5 +1,6 @@
 var mongoose = require('mongoose');
 var Product = mongoose.model('Product');
+var Rating = mongoose.model('Rating')
 
 
 
@@ -84,10 +85,20 @@ exports.updateProduct = function(req, res) {
 };
 
 exports.addRating = function(req, res) {
-    Product.findOneAndUpdate({_id:req.params.productId}, {$push: {ratings: req.body.ratings}}, {new: true}, function(err, product) {
+    Product.findOneAndUpdate({_id:req.params.productId}, {$addToSet: {ratings: req.body}}, {new: true}, function(err, product) {
+        if (err)
+            res.status(500).send({message: `Error when finding in database: ${err}`});
+
+        product.numRates++;
+        product.totalRate=product.totalRate+req.body.rate;
+        product.avgRate=product.totalRate/product.numRates;
+
+        Product.findOneAndUpdate({_id:req.params.productId}, product, {new: true}, function(err, product) {
         if (err)
             res.status(500).send({message: `Error when finding in database: ${err}`});
         res.status(200).json(product);
+    });
+        //res.status(200).json(product);
     });
 };
 
