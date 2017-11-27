@@ -23,6 +23,15 @@ exports.findByName = function(req, res) {
         res.status(200).json(product);
     });
 };
+exports.findByCategory = function(req, res) {
+    Product.find({category:req.params.productCategory})
+        .populate({ path: 'ratings.userId' })
+        .exec(function(err, product) {
+            if (err)
+                res.status(500).send({message: `Error when finding in database: ${err}`});
+            res.status(200).json(product);
+        });
+};
 
 exports.findText = function(req, res) {
     if (req.params.category === 'Todos' && req.params.text === '0'){

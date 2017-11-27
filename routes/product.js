@@ -11,6 +11,8 @@ router.get('/all',products.listAllProducts);
 router.get('/:productName',products.findByName);
 //Get a product by name, category or company
 router.get('/searchProduct/:text/:category', products.findText);
+//Get a product by category
+router.get('/searchProductByCategory/:productCategory', products.findByCategory);
 
 //POST REQUESTS
 //Add a new product
