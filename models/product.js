@@ -15,7 +15,7 @@ var ratings = mongoose.Schema({
 
 var product = mongoose.Schema({
     name: String,
-    category: String,
+    category: { type: String, enum: ['desktop','laptop','tablet','mobile','accessories']},
     company: String,
 	specifications:[],
 	date: { type: Date, default: Date.now },
