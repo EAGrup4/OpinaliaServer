@@ -43,12 +43,12 @@ exports.loginUser=function(req,res){
     var params = req.body;
     var email = params.email;
     var password = params.password;
-    User.findOne({email: email.toLowerCase()}, (err, user) =>{
+    User.findOne({email: email.toLowerCase()}, function(err, user) {
         if(err){
             res.status(500).send({message: 'Error when checking in database'});
         }else{
             if(user){
-                bcrypt.compare(password,user.password, (err, check)=>{
+                bcrypt.compare(password,user.password, function(err, check){
                     if(check) {
                         if(params.gettoken){
                         res.status(200).json({
