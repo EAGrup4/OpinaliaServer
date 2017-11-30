@@ -1,7 +1,7 @@
 {
   "name": "opinalia",
-  "version": "1.0.0",
-  "description": "This is a project for the subject EA",
+  "version": "0.1.0",
+  "description": "Opinalia server",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
