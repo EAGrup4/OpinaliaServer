@@ -1,9 +1,9 @@
 var mongoose = require('mongoose');
 
 var user = mongoose.Schema({
-    name: String,
+    name: {type:String,required : true},
     email: { type : String , unique : true, required : true},
-    password: String,
+    password: {type:String,required : true},
 	profileImage:String,
 	admin:{type: Boolean, default:false}
 },{collection:'users'});

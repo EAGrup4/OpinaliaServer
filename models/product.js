@@ -6,18 +6,17 @@ var User = mongoose.model('User')
 var imageSchema = mongoose.Schema({src:String},{ _id : false });
 
 var ratings = mongoose.Schema({
-	productId:{type:Schema.ObjectId, ref: 'Product'},
-	userId:{type:Schema.ObjectId, ref: 'User'},
-	title:String,
-	comment:String,
+	userId:{type:Schema.ObjectId, ref: 'User',required: true, unique: true},
+	title:{type:String,required : true},
+	comment:{type:String,required : true},
 	rate:{type:Number,required : true},
 	date: { type: Date, default: Date.now },
 	},{ _id : false });
 
 var product = mongoose.Schema({
-    name: String,
-    category: String,
-    company: String,
+    name: {type:String,required : true},
+    category: {type:String,required : true},
+    company: {type:String,required : true},
 	specifications:[],
 	date: { type: Date, default: Date.now },
 	images:[imageSchema],
