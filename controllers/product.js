@@ -25,12 +25,12 @@ exports.findByName = function(req, res) {
 };
 exports.findByCategory = function(req, res) {
     Product.find({category:req.params.productCategory})
-        .populate({ path: 'ratings.userId' })
-        .exec(function(err, product) {
-            if (err)
-                res.status(500).send({message: `Error when finding in database: ${err}`});
-            res.status(200).json(product);
-        });
+    .populate({ path: 'ratings.userId' })
+    .exec(function(err, product) {
+        if (err)
+            res.status(500).send({message: `Error when finding in database: ${err}`});
+        res.status(200).json(product);
+    });
 };
 
 exports.findText = function(req, res) {
@@ -89,7 +89,7 @@ exports.findText = function(req, res) {
 
 exports.addProduct= function(req, res) {
     var newProduct = new Product(req.body);
-   newProduct.save(function(err, product) {
+    newProduct.save(function(err, product) {
         if (err)
             res.status(500).send({message: `Error when saving in database: ${err}`});
         res.status(200).json(product);
@@ -109,6 +109,36 @@ exports.updateProduct = function(req, res) {
 };
 
 exports.addRating = function(req, res) {
+    var rating=req.body
+    var productId=req.params.productId;
+    
+    Product.findOne({_id:req.params.productId, 'ratings.userId':rating.userId}).
+    exec(function(err, product) {
+        if (err)
+            res.status(500).send({message: `Error when finding in database: ${err}`});
+
+        else if (!product){
+            Product.findOneAndUpdate({_id:productId}, {$addToSet: {ratings: rating}}, {new: true}, function(err, product) {
+                if (err)
+                    res.status(500).send({message: `Error when finding in database: ${err}`});                
+
+                this.getAvgR(product,rating, function(prod){
+                    Product.findOneAndUpdate({_id:productId}, prod, {new: true})
+                    .populate({ path: 'ratings.userId' })
+                    .exec(function(err, product) {
+                        if (err)
+                            res.status(500).send({message: `Error when finding in database: ${err}`});
+                        res.status(200).json(product);
+                    });
+                });
+            })
+        }
+        else
+            res.status(409).send({message: `Already rated`});
+            //res.status(200).json(product);
+        });
+
+    /*
     Product.findOneAndUpdate({_id:req.params.productId}, {$addToSet: {ratings: req.body}}, {new: true}, function(err, product) {
         if (err)
             res.status(500).send({message: `Error when finding in database: ${err}`});
@@ -120,29 +150,30 @@ exports.addRating = function(req, res) {
         Product.findOneAndUpdate({_id:req.params.productId}, product, {new: true})
         .populate({ path: 'ratings.userId' })
         .exec(function(err, product) {
-        if (err)
-            res.status(500).send({message: `Error when finding in database: ${err}`});
-        res.status(200).json(product);
-    });
+            if (err)
+                res.status(500).send({message: `Error when finding in database: ${err}`});
+            res.status(200).json(product);
+        });
         //res.status(200).json(product);
-    });
+    });*/
 };
 
 exports.deleteRating = function(req, res) {   
-    Product.findOneAndUpdate({_id:req.params.productId}, {$pull: {ratings: req.body}}, {new: true}, function(err, product) {
-        if (err)
-            res.status(500).send({message: `Error when finding in database: ${err}`});
+   var rating=req.body
+   var productId=req.params.productId;
 
-        product.numRates--;
-        product.totalRate=product.totalRate-req.body.rate;
-        product.avgRate=(product.totalRate/product.numRates).toFixed(1);
+   Product.findOneAndUpdate({_id:productId}, {$pull: {ratings: rating}}, {new: true}, function(err, product) {
+    if (err)
+        res.status(500).send({message: `Error when finding in database: ${err}`});
 
-        Product.findOneAndUpdate({_id:req.params.productId}, product, {new: true})
+    this.getAvgR(product,rating, function(prod){
+        Product.findOneAndUpdate({_id:productId}, prod, {new: true})
         .populate({ path: 'ratings.userId' })
         .exec(function(err, product) {
-        if (err)
-            res.status(500).send({message: `Error when finding in database: ${err}`});
-        res.status(200).json(product);
+            if (err)
+                res.status(500).send({message: `Error when finding in database: ${err}`});
+            res.status(200).json(product);
+        });
     });
         //res.status(200).json(product);
     });
@@ -155,3 +186,31 @@ exports.deleteProduct = function(req, res) {
         res.status(200).json({ message: 'Product successfully deleted' });
     });
 };
+
+//private
+
+getAvgR = function(product, rating, callback){
+
+    var total = 0;
+    var ratings=[]
+    ratings=product.ratings;
+    if(ratings.length>0){
+        for(var i = 0; i < ratings.length; i++) {
+            total += ratings[i].rate;
+        }
+
+        product.avgRate = (total / ratings.length).toFixed(1);
+    }
+
+    else
+        product.avgRate = 0;
+        //console.log("total: "+total)
+        //console.log (product)
+        
+        //product.avgRate=(product.totalRate/product.numRates).toFixed(1);
+
+        callback(product)
+
+        
+        //res.status(200).json(product);
+    };

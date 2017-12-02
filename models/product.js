@@ -21,9 +21,7 @@ var product = mongoose.Schema({
 	date: { type: Date, default: Date.now },
 	images:[imageSchema],
 	ratings:[ratings],
-	numRates: {type:Number, default: 0},
-	totalRate:{type:Number, default: 0},
-	avgRate: {type:Number, default: -1}
+	avgRate: {type:Number, default: 0}
 	
 	},{collection:'products'});
 
