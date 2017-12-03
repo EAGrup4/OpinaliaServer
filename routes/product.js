@@ -13,6 +13,12 @@ router.get('/id/:productId',products.findById);
 router.get('/name/:productName',products.findByName);
 //Get a product by name, category or company
 router.get('/searchProduct/:text/:category', products.findText);
+//Get best products
+router.get('/best',products.bestProducts);
+//Get best products
+router.get('/best/:productCategory',products.bestTypeProducts);
+//Get a product by name and/or company
+router.get('/searchProduct2/:text/:company', products.findTextCompany);
 //Get a product by category
 router.get('/category/:productCategory', products.findByCategory);
 
