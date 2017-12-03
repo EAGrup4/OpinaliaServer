@@ -14,6 +14,29 @@ exports.listAllProducts = function(req, res) {
     });
 };
 
+exports.bestProducts = function(req, res) {
+    Product.find()
+        .sort({avgRate:-1})
+        .limit(7)
+        .populate({ path: 'ratings.userId' })
+        .exec(function(err, products) {
+            if (err)
+                res.status(500).send({message: `Error when finding in database: ${err}`});
+            res.status(200).json(products);
+        });
+};
+exports.bestTypeProducts = function(req, res) {
+    Product.find({category:req.params.productCategory})
+        .sort({avgRate:-1})
+        .limit(7)
+        .populate({ path: 'ratings.userId' })
+        .exec(function(err, products) {
+            if (err)
+                res.status(500).send({message: `Error when finding in database: ${err}`});
+            res.status(200).json(products);
+        });
+};
+
 exports.findByName = function(req, res) {
     Product.find({name:req.params.productName})
     .populate({ path: 'ratings.userId' })
@@ -33,7 +56,7 @@ exports.findByCategory = function(req, res) {
     });
 };
 
-exports.findText = function(req, res) {
+exports.findTextCategory = function(req, res) {
     if (req.params.category === 'Todos' && req.params.text === '0'){
         Product.find()
         .populate({ path: 'ratings.userId' })
@@ -84,6 +107,54 @@ exports.findText = function(req, res) {
                 res.status(200).json(product);
             }
         });
+    }
+};
+
+exports.findTextCompany = function(req, res) {
+    if (req.params.company === 'Todas' && req.params.text === '0'){
+        Product.find()
+            .populate({ path: 'ratings.userId' })
+            .exec(function(err, products) {
+                if (err)
+                    res.status(500).send({message: `Error when finding in database: ${err}`});
+                res.status(200).json(products);
+            });
+    } else if (req.params.company === 'Todas'){
+        Product.find({name:req.params.text}, function(err, product) {
+            if (product.length === 0){
+                Product.find({company:req.params.text})
+                    .populate({ path: 'ratings.userId' })
+                    .exec(function(err, product) {
+                        if (product.length === 0) {
+                            res.status(500).send({message: `Error when finding in database: ${err}`});
+                        } else {
+                            res.status(200).json(product);
+                        }
+                    });
+            } else {
+                res.status(200).json(product);
+            }
+        });
+    } else if (req.params.text === '0') {
+        Product.find({company:req.params.company})
+            .populate({ path: 'ratings.userId' })
+            .exec(function(err, product) {
+                if (product.length === 0) {
+                    res.status(500).send({message: `Error when finding in database: ${err}`});
+                } else {
+                    res.status(200).json(product);
+                }
+            });
+    } else {
+        Product.find({name: req.params.text, company: req.params.company})
+            .populate()
+            .exec(function (err, product) {
+                if (product.length === 0) {
+                    res.status(500).send({message: `Error when finding in database: ${err}`});
+                } else {
+                    res.status(200).json(product);
+                }
+            });
     }
 };
 
