@@ -59,6 +59,16 @@ exports.findByCategory = function(req, res) {
     });
 };
 
+exports.findByCompany = function(req, res) {
+    Product.find({company:req.params.productCompany})
+        .populate({ path: 'ratings.userId' })
+        .exec(function(err, product) {
+            if (err)
+                res.status(500).send({message: `Error when finding in database: ${err}`});
+            res.status(200).json(product);
+        });
+};
+
 exports.findById = function(req, res) {
     Product.findOne({_id:req.params.productId})
     .populate({ path: 'ratings.userId' })
@@ -274,7 +284,6 @@ exports.deleteProduct = function(req, res) {
 //private
 
 getAvgR = function(product, rating, callback){
-
     var total = 0;
     var ratings=[]
     ratings=product.ratings;
@@ -282,19 +291,12 @@ getAvgR = function(product, rating, callback){
         for(var i = 0; i < ratings.length; i++) {
             total += ratings[i].rate;
         }
-
         product.avgRate = (total / ratings.length).toFixed(1);
-    }
-
-    else
+    } else
         product.avgRate = 0;
         //console.log("total: "+total)
         //console.log (product)
-        
         //product.avgRate=(product.totalRate/product.numRates).toFixed(1);
-
         callback(product)
-
-        
         //res.status(200).json(product);
     };

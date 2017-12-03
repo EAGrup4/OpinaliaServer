@@ -7,18 +7,20 @@ var products = require('../controllers/product');
 //GET REQUESTS
 //Get all the products
 router.get('/all',products.listAllProducts);
+//Get best products
+router.get('/best',products.bestProducts);
 //Get by id
 router.get('/id/:productId',products.findById);
 //Get a product by name
 router.get('/name/:productName',products.findByName);
 //Get a product by category
 router.get('/category/:productCategory', products.findByCategory);
-//Get a product by name, category or company
-router.get('/searchProduct/:text/:category', products.findText);
-//Get best products
-router.get('/best',products.bestProducts);
+//Get a product by company
+router.get('/company/:productCompany', products.findByCompany);
 //Get best products
 router.get('/best/:productCategory',products.bestTypeProducts);
+//Get a product by name, category or company
+router.get('/searchProduct/:text/:category', products.findTextCategory);
 //Get a product by name and/or company
 router.get('/searchProduct2/:text/:company', products.findTextCompany);
 
