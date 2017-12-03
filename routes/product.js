@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var mongoose = require('mongoose');
 var products = require('../controllers/product');
+var md_auth = require('../middlewares/authenticated')
 
 
 //GET REQUESTS
@@ -28,23 +29,22 @@ router.get('/searchProduct2/:text/:company', products.findTextCompany);
 
 //POST REQUESTS
 //Add a new product
-router.post('/add', products.addProduct);
+router.post('/add', md_auth.ensureAuth, products.addProduct);
 
 
 //UPDATE REQUESTS
 //Update a product by Id
-router.post('/:productId', products.updateProduct);
+router.post('/:productId', md_auth.ensureAuth, products.updateProduct);
 //Add rating to a product
-router.post('/rating/:productId', products.addRating);
+router.post('/rating/:productId', md_auth.ensureAuth, products.addRating);
 //Delete rating from product
-router.post('/pullRating/:productId/', products.deleteRating);
+router.post('/pullRating/:productId/', md_auth.ensureAuth, products.deleteRating);
 
 
 //DELETE REQUESTS
 //Delete a product by Id
-router.delete('/:productId',products.deleteProduct);
+router.delete('/:productId', md_auth.ensureAuth, products.deleteProduct);
 
-router.post('/rating/:productId', products.addRating);
 
 
 

@@ -1,6 +1,7 @@
 var mongoose = require('mongoose');
 var Product = mongoose.model('Product');
-var Rating = mongoose.model('Rating')
+var Rating = mongoose.model('Rating');
+var jwt = require('../services/jwt');
 
 
 

@@ -7,11 +7,11 @@ var md_auth = require('../middlewares/authenticated')
 
 //GET REQUESTS
 //Get all the users
-router.get('/all',users.listAllUsers);
+router.get('/all', md_auth.ensureAuth, users.listAllUsers);
 //Get a user by email
-router.get('/email/:email',users.findByEmail);
+router.get('/email/:email', md_auth.ensureAuth, users.findByEmail);
 //Get a user by email
-router.get('/name/:name',users.findByName);
+router.get('/name/:name',md_auth.ensureAuth, users.findByName);
 
 
 //POST REQUESTS
