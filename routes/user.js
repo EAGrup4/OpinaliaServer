@@ -28,7 +28,7 @@ router.post('/:userId', md_auth.ensureAuth, users.updateUser);
 
 //DELETE REQUESTS
 //Delete user by id
-router.delete('/:userId',users.deleteUser);
+router.delete('/:userId', md_auth.ensureAuth, users.deleteUser);
 
 
 module.exports=router;

@@ -39,7 +39,7 @@ exports.registerUser = function(req, res) {
     });
 };
 
-//CUANDO HACES LOGIN TE DEVUELVE EL TOKEN QUE LUEGO TENDRAS QUE PASAR X CABECERAS EN LAS PETICIONES
+
 exports.loginUser=function(req,res){
     var params = req.body;
     var email = params.email;
@@ -67,33 +67,11 @@ exports.loginUser=function(req,res){
     });
 }
 
-/*
-exports.updateUser = function(req, res){
-    var userId = req.params.id;
-    var update = req.body;
-
-    if(userId != req.user.sub){
-        res.status(500).send({message: 'You do not have enough capabilities'});
-    }
-
-    User.findByIdAndUpdate(userId,update,{new: true}, function(err, userUpdated){
-        if(err){
-            res.status(500).send({message: 'Error in updating user'});
-        }else{
-            if(!userUpdated){
-                res.status(400).send({message: 'User can not be updated'});
-            }else{
-                res.status(200).send({user: userUpdated});
-            }
-        }
-    })
-}*/
 
 exports.updateUser = function(req, res) {
     var userId = req.params.userId;
     var update = req.body;
-    
-    //ESTO EN TEORIA COMPRUEBA SI EL ID QUE LE HEMOS PASADO POR PARAMETROS COINCIDE CON EL ID DEL TOKEN
+
    if(userId != req.user.sub){
         res.status(500).send({message: 'You do not have enough capabilities'});
     }
@@ -105,6 +83,11 @@ exports.updateUser = function(req, res) {
 };
 
 exports.deleteUser = function(req, res) {
+    var userId = req.params.userId;
+
+    if (userId != req.user.sub){
+        res.status(500).send({message: 'You do not have enough capabilities'});
+    }
     User.findByIdAndRemove(req.params.userId, function(err, user) {
         if (err)
             res.status(500).send({message: `Error when deleting in database: ${err}`});
