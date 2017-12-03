@@ -38,11 +38,13 @@ exports.registerUser = function(req, res) {
         });
     });
 };
+
 //CUANDO HACES LOGIN TE DEVUELVE EL TOKEN QUE LUEGO TENDRAS QUE PASAR X CABECERAS EN LAS PETICIONES
 exports.loginUser=function(req,res){
     var params = req.body;
     var email = params.email;
     var password = params.password;
+
     User.findOne({email: email.toLowerCase()}, function(err, user) {
         if(err){
             res.status(500).send({message: 'Error when checking in database'});
@@ -50,44 +52,21 @@ exports.loginUser=function(req,res){
             if(user){
                 bcrypt.compare(password,user.password, function(err, check){
                     if(check) {
-                        if(params.gettoken){
-                        res.status(200).json({
-                            token: jwt.createToken(user)
-                        })
-                        }else{
-                            res.status(200).send({user});
-                        }
+
+                        user.token=jwt.createToken(user);
+                        res.status(200).json(user);
 
                     }else{
-                        res.status(400).send({message: 'Incorrect credentials'});
+                        res.status(401).send({message: 'Incorrect credentials'});
                     }
                 })
             }else{
-                res.status(404).send({message: 'Login incorrect'});
+                res.status(404).send({message: 'User not exists'});
             }
         }
     });
 }
-/* LOGIN SIN ENVIAR EL TOKEN
-exports.loginUser = function(req,res){
-    var newUser = new User(req.body);
-    User.find({email:newUser.email}, function(err,user){
-        if (err)
-            res.status(500).send({message: `Error when finding in database: ${err}`});
-        if (user.length==0)
-            res.status(500).send({message: 'User not registered'});
-        else
-            bcrypt.compare(req.body.password,user.password, (err, check)=> {
-                if(check){
-                    res.status(200).json(user);};
 
-                else
-                    res.status(400).send({message: 'Not correct login'});
-                 });
-    });
-
-};
-*/
 /*
 exports.updateUser = function(req, res){
     var userId = req.params.id;

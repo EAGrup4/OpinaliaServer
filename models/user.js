@@ -5,7 +5,8 @@ var user = mongoose.Schema({
     email: { type : String , unique : true, required : true},
     password: {type:String,required : true},
 	profileImage:String,
-	admin:{type: Boolean, default:false}
+	admin:{type: Boolean, default:false},
+	token:String
 },{collection:'users'});
 
 module.exports=mongoose.model('User', user);
