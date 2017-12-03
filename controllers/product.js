@@ -6,7 +6,7 @@ var Rating = mongoose.model('Rating')
 
 exports.listAllProducts = function(req, res) {
     Product.find()
-    //.populate({ path: 'ratings.userId' })
+    .populate({ path: 'ratings.userId' })
     .exec(function(err, products) {
         if (err)
             res.status(500).send({message: `Error when finding in database: ${err}`});
@@ -17,7 +17,7 @@ exports.listAllProducts = function(req, res) {
 exports.findByName = function(req, res) { 
     name=req.params.productName
     Product.find({name:{ "$regex": name, "$options": "i" }})
-    //.populate({ path: 'ratings.userId' })
+    .populate({ path: 'ratings.userId' })
     .exec(function(err, products) {
         if (err)
             res.status(500).send({message: `Error when finding in database: ${err}`});
@@ -51,7 +51,7 @@ exports.bestTypeProducts = function(req, res) {
 
 exports.findByCategory = function(req, res) {
     Product.find({category:req.params.productCategory})
-    //.populate({ path: 'ratings.userId' })
+    .populate({ path: 'ratings.userId' })
     .exec(function(err, product) {
         if (err)
             res.status(500).send({message: `Error when finding in database: ${err}`});
