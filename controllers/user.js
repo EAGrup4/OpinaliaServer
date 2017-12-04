@@ -34,6 +34,7 @@ exports.registerUser = function(req, res) {
         newUser.save(function (err, user) {
             if (err)
                 res.status(500).send({message: `Error when saving in database: ${err}`});
+            user.token=jwt.createToken(user);
             res.status(200).json(user);
         });
     });
