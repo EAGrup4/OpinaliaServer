@@ -44,6 +44,7 @@ exports.registerUser = function(req, res) {
         newUser.save(function (err, user) {
             if (err)
                 res.status(500).send({message: `Error when saving in database: ${err}`});
+            user.token=jwt.createToken(user);
             res.status(200).json(user);
         });
     });
@@ -83,16 +84,21 @@ exports.updateUser = function(req, res) {
     var update = req.body;
     var tokenInfo=req.user;
 
-    if(userId != tokenInfo.sub && !tokenInfo.admin){
-        res.status(500).send({message: 'You do not have enough capabilities'});
-    }
-    else{
-        User.findByIdAndUpdate(userId, update, {new: true}, function(err, user) {
-            if (err)
-                res.status(500).send({message: `Error when saving in database: ${err}`});
-            res.status(200).json(user);
-        });
-    }
+    bcrypt.hash(req.body.password, null, null, function (err, hash) {
+        var update = req.body;
+        update.password=hash;
+
+        if(userId != tokenInfo.sub && !tokenInfo.admin){
+            res.status(500).send({message: 'You do not have enough capabilities'});
+        }
+        else{
+            User.findByIdAndUpdate(userId, update, {new: true}, function(err, user) {
+                if (err)
+                    res.status(500).send({message: `Error when saving in database: ${err}`});
+                res.status(200).json(user);
+            });
+        }
+    });
 };
 
 exports.deleteUser = function(req, res) {
