@@ -76,10 +76,16 @@ exports.updateUser = function(req, res) {
    if(userId != req.user.sub){
         res.status(500).send({message: 'You do not have enough capabilities'});
     }
-    User.findOneAndUpdate(userId, update, {new: true}, function(err, user) {
-        if (err)
+    User.findByIdAndUpdate(userId, update, {new: true}, function(err, user) {
+        if (err) {
             res.status(500).send({message: `Error when saving in database: ${err}`});
-        res.status(200).json(user);
+        }else {
+            if(!user){
+                res.status(400).send({message: 'User can not be updated'});
+            }else {
+                res.status(200).json(user);
+            }
+        }
     });
 };
 
