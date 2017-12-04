@@ -72,6 +72,10 @@ exports.loginUser=function(req,res){
 exports.updateUser = function(req, res) {
     var userId = req.params.userId;
     var update = req.body;
+    bcrypt.hash(req.body.password, null, null, function (err, hash) {
+        var update = req.body;
+        update.password=hash;
+
 
    if(userId != req.user.sub){
         res.status(500).send({message: 'You do not have enough capabilities'});
@@ -86,6 +90,7 @@ exports.updateUser = function(req, res) {
                 res.status(200).json(user);
             }
         }
+    });
     });
 };
 
