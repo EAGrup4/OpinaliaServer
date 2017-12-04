@@ -6,12 +6,21 @@ var jwt = require('../services/jwt');
 
 
 exports.listAllUsers = function(req, res) {
-    User.find({}, function(err, users) {
-        if (err)
-            res.status(500).send({message: `Error when finding in database: ${err}`});
-        res.status(200).json(users);
-    });
+    var tokenInfo=req.user;
+
+    if(tokenInfo.admin){
+        User.find({}, function(err, users) {
+            if (err)
+                res.status(500).send({message: `Error when finding in database: ${err}`});
+            res.status(200).json(users);
+        });
+    }
+
+    else
+        es.status(403).json("No privileges");
+
 };
+
 exports.findByEmail = function(req, res) {
     User.find({email:req.params.email}, function(err, user) {
         if (err)
@@ -19,6 +28,7 @@ exports.findByEmail = function(req, res) {
         res.status(200).json(user);
     });
 };
+
 exports.findByName = function(req, res) {
     User.find({name:req.params.name}, function(err, user) {
         if (err)
@@ -71,26 +81,32 @@ exports.loginUser=function(req,res){
 exports.updateUser = function(req, res) {
     var userId = req.params.userId;
     var update = req.body;
+    var tokenInfo=req.user;
 
-   if(userId != req.user.sub){
+    if(userId != tokenInfo.sub && !tokenInfo.admin){
         res.status(500).send({message: 'You do not have enough capabilities'});
     }
-    User.findOneAndUpdate(userId, update, {new: true}, function(err, user) {
-        if (err)
-            res.status(500).send({message: `Error when saving in database: ${err}`});
-        res.status(200).json(user);
-    });
+    else{
+        User.findByIdAndUpdate(userId, update, {new: true}, function(err, user) {
+            if (err)
+                res.status(500).send({message: `Error when saving in database: ${err}`});
+            res.status(200).json(user);
+        });
+    }
 };
 
 exports.deleteUser = function(req, res) {
     var userId = req.params.userId;
 
-    if (userId != req.user.sub){
+   if (userId != req.user.sub){
         res.status(500).send({message: 'You do not have enough capabilities'});
     }
+    
     User.findByIdAndRemove(req.params.userId, function(err, user) {
         if (err)
             res.status(500).send({message: `Error when deleting in database: ${err}`});
         res.status(200).json({ message: 'User successfully deleted' });
     });
+    
+
 };
