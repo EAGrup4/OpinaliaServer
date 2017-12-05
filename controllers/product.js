@@ -300,4 +300,5 @@ getAvgR = function(product, rating, callback){
         //product.avgRate=(product.totalRate/product.numRates).toFixed(1);
         callback(product)
         //res.status(200).json(product);
+
     };

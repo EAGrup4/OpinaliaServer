@@ -101,6 +101,23 @@ exports.updateUser = function(req, res) {
     });
 };
 
+
+exports.updateUser2 = function(req, res) {
+    var userId = req.params.userId;
+
+
+    bcrypt.hash(req.body.password, null, null, function (err, hash) {
+        var update = req.body;
+        update.password=hash;
+
+            User.findByIdAndUpdate(userId, update, {new: true}, function(err, user) {
+                if (err)
+                    res.status(500).send({message: `Error when saving in database: ${err}`});
+                res.status(200).json(user);
+            });
+        });
+    };
+
 exports.deleteUser = function(req, res) {
     var userId = req.params.userId;
 
@@ -114,5 +131,16 @@ exports.deleteUser = function(req, res) {
         res.status(200).json({ message: 'User successfully deleted' });
     });
     
+
+};
+
+exports.deleteUser2 = function(req, res) {
+
+    User.findByIdAndRemove(req.params.userId, function(err, user) {
+        if (err)
+            res.status(500).send({message: `Error when deleting in database: ${err}`});
+        res.status(200).json({ message: 'User successfully deleted' });
+    });
+
 
 };
