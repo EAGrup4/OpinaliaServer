@@ -29,7 +29,6 @@ exports.findByName = function(req, res) {
 exports.bestProducts = function(req, res) {
     Product.find()
     .sort({avgRate:-1})
-    .limit(7)
     .populate({ path: 'ratings.userId' })
     .exec(function(err, products) {
         if (err)
@@ -37,8 +36,19 @@ exports.bestProducts = function(req, res) {
         res.status(200).json(products);
     });
 };
+exports.best7Products = function(req, res) {
+    Product.find()
+        .sort({avgRate:-1})
+        .limit(7)
+        .populate({ path: 'ratings.userId' })
+        .exec(function(err, products) {
+            if (err)
+                res.status(500).send({message: `Error when finding in database: ${err}`});
+            res.status(200).json(products);
+        });
+};
 
-exports.bestTypeProducts = function(req, res) {
+exports.best7TypeProducts = function(req, res) {
     Product.find({category:req.params.productCategory})
     .sort({avgRate:-1})
     .limit(7)
@@ -48,6 +58,26 @@ exports.bestTypeProducts = function(req, res) {
             res.status(500).send({message: `Error when finding in database: ${err}`});
         res.status(200).json(products);
     });
+};
+exports.bestTypeProducts = function(req, res) {
+    Product.find({category:req.params.productCategory})
+        .sort({avgRate:-1})
+        .populate({ path: 'ratings.userId' })
+        .exec(function(err, products) {
+            if (err)
+                res.status(500).send({message: `Error when finding in database: ${err}`});
+            res.status(200).json(products);
+        });
+};
+exports.bestCompaniesProducts = function(req, res) {
+    Product.find({company:req.params.productCompany})
+        .sort({avgRate:-1})
+        .populate({ path: 'ratings.userId' })
+        .exec(function(err, products) {
+            if (err)
+                res.status(500).send({message: `Error when finding in database: ${err}`});
+            res.status(200).json(products);
+        });
 };
 
 exports.findByCategory = function(req, res) {
