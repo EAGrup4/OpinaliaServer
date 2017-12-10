@@ -10,6 +10,8 @@ var md_auth = require('../middlewares/authenticated')
 router.get('/all',products.listAllProducts);
 //Get best products
 router.get('/best',products.bestProducts);
+//Get best products
+router.get('/best7',products.best7Products);
 //Get by id
 router.get('/id/:productId',products.findById);
 //Get a product by name
@@ -18,8 +20,12 @@ router.get('/name/:productName',products.findByName);
 router.get('/category/:productCategory', products.findByCategory);
 //Get a product by company
 router.get('/company/:productCompany', products.findByCompany);
+//Get best 7 products
+router.get('/best7/:productCategory',products.best7TypeProducts);
 //Get best products
-router.get('/best/:productCategory',products.bestTypeProducts);
+router.get('/bestCategory/:productCategory',products.bestTypeProducts);
+//Get best products
+router.get('/bestCompany/:productCompany',products.bestCompaniesProducts);
 //Get a product by name, category or company
 router.get('/searchProduct/:text/:category', products.findTextCategory);
 //Get a product by name and/or company
