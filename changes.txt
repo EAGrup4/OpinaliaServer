@@ -1,0 +1,24 @@
+CAMBIOS MIKEL 10-12-17
+
+Rutas modificadas: (vieja ===> nueva)
+
+* /bestCategory/:productCategory ===> /category/best/:productCategory
+* /bestCompany/:productCompany ===> /company/best/:productCompany
+* /best7/:productCategory ===> /category/best7/:productCategory
+* /searchProduct/:text/:category ===> /category/:text/:category
+* /searchProduct2/:text/:company ===> /company/:text/:company
+
+
+Quitado populate y envio de ratings en:
+
+* List all
+* find by name
+* best
+* best7
+* best 7 category
+* best category
+* best company
+* find by category
+* find by company
+* find text in category
+* find text in company
