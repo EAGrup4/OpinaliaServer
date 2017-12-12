@@ -312,7 +312,7 @@ exports.deleteProduct = function(req, res) {
     });
 };
 
-//private
+//PRIVATE
 
 getAvgR = function(product, rating, callback){
     var total = 0;

@@ -13,11 +13,16 @@ var ratings = mongoose.Schema({
 	date: { type: Date, default: Date.now },
 	},{ _id : false });
 
+var specs = mongoose.Schema({
+	name:String
+	spec:String
+},{_id:false});
+
 var product = mongoose.Schema({
     name: {type:String,required : true},
     category: { type: String, enum: ['desktop','laptop','tablet','phone','accessories'],required : true},
     company: {type:String,required : true},
-	specifications:[],
+	specifications:[specs],
 	date: { type: Date, default: Date.now },
 	images:[imageSchema],
 	ratings:[ratings],
