@@ -14,7 +14,7 @@ var ratings = mongoose.Schema({
 	},{ _id : false });
 
 var specs = mongoose.Schema({
-	name:String
+	name:String,
 	spec:String
 },{_id:false});
 
