@@ -2,13 +2,14 @@ var mongoose = require('mongoose');
 var Product = mongoose.model('Product');
 var Rating = mongoose.model('Rating');
 var jwt = require('../services/jwt');
+var sortJsonArray = require('sort-json-array');
 
 
 
 exports.listAllProducts = function(req, res) {
     Product.find()
     //.populate({ path: 'ratings.userId' })
-    .select({"ratings":0})
+    //.select({"ratings":0})
     .exec(function(err, products) {
         if (err)
             res.status(500).send({message: `Error when finding in database: ${err}`});
@@ -284,10 +285,10 @@ exports.addRating = function(req, res) {
 };
 
 exports.deleteRating = function(req, res) {   
-   var rating=req.body
-   var productId=req.params.productId;
+ var rating=req.body
+ var productId=req.params.productId;
 
-   Product.findOneAndUpdate({_id:productId}, {$pull: {ratings: rating}}, {new: true}, function(err, product) {
+ Product.findOneAndUpdate({_id:productId}, {$pull: {ratings: rating}}, {new: true}, function(err, product) {
     if (err)
         res.status(500).send({message: `Error when finding in database: ${err}`});
 
@@ -301,6 +302,30 @@ exports.deleteRating = function(req, res) {
         });
     });
         //res.status(200).json(product);
+    });
+};
+
+exports.getRatingsBest = function(req, res) {
+    Product.findOne({_id:req.params.productId})
+    //.limit(2)
+    .populate({ path: 'ratings.userId' })
+    .exec(function(err, product) {
+        if (err)
+            res.status(500).send({message: `Error when finding in database: ${err}`});
+        sortJsonArray(product.ratings, 'rate', 'des')
+        res.status(200).json(product.ratings);
+    });
+};
+
+exports.getRatingsWorst = function(req, res) {
+    Product.findOne({_id:req.params.productId})
+    //.limit(7)
+    .populate({ path: 'ratings.userId' })
+    .exec(function(err, product) {
+        if (err)
+            res.status(500).send({message: `Error when finding in database: ${err}`});
+        sortJsonArray(product.ratings, 'rate', 'asc')
+        res.status(200).json(product.ratings);
     });
 };
 
