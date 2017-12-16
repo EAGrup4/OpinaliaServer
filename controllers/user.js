@@ -11,42 +11,51 @@ exports.listAllUsers = function(req, res) {
     if(tokenInfo.admin){
         User.find({}, function(err, users) {
             if (err)
-                res.status(500).send({message: `Error when finding in database: ${err}`});
-            res.status(200).json(users);
+                res.status(500).send({message: `Internal server error: ${err}`});
+            else
+                res.status(200).json(users);
         });
     }
 
     else
-        es.status(403).json("No privileges");
+        res.status(403).json({message: 'No privileges'});
 
 };
 
 exports.findByEmail = function(req, res) {
     User.find({email:req.params.email}, function(err, user) {
         if (err)
-            res.status(500).send({message: `Error when finding in database: ${err}`});
-        res.status(200).json(user);
+            res.status(500).send({message: `Internal server error: ${err}`});
+        else
+            res.status(200).json(user);
     });
 };
 
 exports.findByName = function(req, res) {
     User.find({name:req.params.name}, function(err, user) {
         if (err)
-            res.status(500).send({message: `Error when finding in database: ${err}`});
-        res.status(200).json(user);
+            res.status(500).send({message: `Internal server error: ${err}`});
+        else
+            res.status(200).json(user);
     });
 };
 
 exports.registerUser = function(req, res) {
     bcrypt.hash(req.body.password, null, null, function (err, hash) {
-        var newUser = new User(req.body);
-        newUser.password = hash;
-        newUser.save(function (err, user) {
-            if (err)
-                res.status(500).send({message: `Error when saving in database: ${err}`});
-            user.token=jwt.createToken(user);
-            res.status(200).json(user);
-        });
+        if (err)
+            s.status(500).send({message: `Internal server error: ${err}`});
+        else{
+            var newUser = new User(req.body);
+            newUser.password = hash;
+            newUser.save(function (err, user) {
+                if (err)
+                    res.status(500).send({message: `Internal server error: ${err}`});
+                else{
+                    user.token=jwt.createToken(user);
+                    res.status(200).json(user);
+                }
+            });
+        }
     });
 };
 
@@ -58,7 +67,7 @@ exports.loginUser=function(req,res){
 
     User.findOne({email: email.toLowerCase()}, function(err, user) {
         if(err){
-            res.status(500).send({message: 'Error when checking in database'});
+            res.status(500).send({message: 'Internal server error'});
         }else{
             if(user){
                 bcrypt.compare(password,user.password, function(err, check){
@@ -72,7 +81,7 @@ exports.loginUser=function(req,res){
                     }
                 })
             }else{
-                res.status(404).send({message: 'User not exists'});
+                res.status(404).send({message: 'User not found'});
             }
         }
     });
@@ -87,16 +96,20 @@ exports.updateUser = function(req, res) {
     bcrypt.hash(req.body.password, null, null, function (err, hash) {
         var update = req.body;
         update.password=hash;
-
-        if(userId != tokenInfo.sub && !tokenInfo.admin){
-            res.status(500).send({message: 'You do not have enough capabilities'});
-        }
+        if (err)
+            res.status(500).send({message: `Internal server error: ${err}`});
         else{
-            User.findByIdAndUpdate(userId, update, {new: true}, function(err, user) {
-                if (err)
-                    res.status(500).send({message: `Error when saving in database: ${err}`});
-                res.status(200).json(user);
-            });
+            if(userId != tokenInfo.sub && !tokenInfo.admin){
+                res.status(403).send({message: 'No privileges'});
+            }
+            else{
+                User.findByIdAndUpdate(userId, update, {new: true}, function(err, user) {
+                    if (err)
+                        res.status(500).send({message: `Internal server error: ${err}`});
+                    else
+                        res.status(200).json(user);
+                });
+            }
         }
     });
 };
@@ -112,7 +125,7 @@ exports.updateUser2 = function(req, res) {
 
             User.findByIdAndUpdate(userId, update, {new: true}, function(err, user) {
                 if (err)
-                    res.status(500).send({message: `Error when saving in database: ${err}`});
+                    res.status(500).send({message: `Internal server error: ${err}`});
                 res.status(200).json(user);
             });
         });
@@ -120,15 +133,18 @@ exports.updateUser2 = function(req, res) {
 
 exports.deleteUser = function(req, res) {
     var userId = req.params.userId;
+    var tokenInfo=req.user;
 
-   if (userId != req.user.sub){
-        res.status(500).send({message: 'You do not have enough capabilities'});
+
+   if (userId != tokenInfo.sub && !tokenInfo.admin){
+        res.status(403).send({message: 'No privileges'});
     }
     
-    User.findByIdAndRemove(req.params.userId, function(err, user) {
+    User.findByIdAndRemove(userId, function(err, user) {
         if (err)
-            res.status(500).send({message: `Error when deleting in database: ${err}`});
-        res.status(200).json({ message: 'User successfully deleted' });
+            res.status(500).send({message: `Internal server error: ${err}`});
+        else
+            res.status(200).json({ message: 'User successfully deleted' });
     });
     
 
@@ -138,9 +154,7 @@ exports.deleteUser2 = function(req, res) {
 
     User.findByIdAndRemove(req.params.userId, function(err, user) {
         if (err)
-            res.status(500).send({message: `Error when deleting in database: ${err}`});
+            res.status(500).send({message: `Internal server error: ${err}`});
         res.status(200).json({ message: 'User successfully deleted' });
     });
-
-
 };

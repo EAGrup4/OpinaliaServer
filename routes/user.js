@@ -10,7 +10,7 @@ var md_auth = require('../middlewares/authenticated')
 router.get('/all', md_auth.ensureAuth, users.listAllUsers);
 //Get a user by email
 router.get('/email/:email', md_auth.ensureAuth, users.findByEmail);
-//Get a user by email
+//Get a user by name
 router.get('/name/:name',md_auth.ensureAuth, users.findByName);
 
 

@@ -12,22 +12,42 @@ exports.listAllProducts = function(req, res) {
     //.select({"ratings":0})
     .exec(function(err, products) {
         if (err)
-            res.status(500).send({message: `Error when finding in database: ${err}`});
-        res.status(200).json(products);
+            res.status(500).send({message: `Internal server error: ${err}`});
+        else
+            res.status(200).json(products);
     });
 };
 
 exports.findByName = function(req, res) { 
-    name=req.params.productName
-    Product.find({name:{ "$regex": name, "$options": "i" }})
+    nameToSearch=req.params.productName
+
+    Product.find({name:{ "$regex": nameToSearch, "$options": "i" }})
     //.populate({ path: 'ratings.userId' })
     .select({"ratings":0})
     .exec(function(err, products) {
         if (err)
-            res.status(500).send({message: `Error when finding in database: ${err}`});
-        res.status(200).json(products);
+            res.status(500).send({message: `Internal server error: ${err}`});
+        else
+            res.status(200).json(products);
     });
 };
+
+exports.SearchAny = function(req, res){
+    word = req.params.word;
+
+    Product.find({$or:[
+        {name:{ "$regex": word, "$options": "i" }},
+        {company:{ "$regex": word, "$options": "i" }}
+        ]})
+    //.populate({ path: 'ratings.userId' })
+    .select({"ratings":0})
+    .exec(function(err, products) {
+        if (err)
+            res.status(500).send({message: `Internal server error: ${err}`});
+        else
+            res.status(200).json(products);
+    });
+}
 
 exports.bestProducts = function(req, res) {
     Product.find()
@@ -36,8 +56,9 @@ exports.bestProducts = function(req, res) {
     .select({"ratings":0})
     .exec(function(err, products) {
         if (err)
-            res.status(500).send({message: `Error when finding in database: ${err}`});
-        res.status(200).json(products);
+            res.status(500).send({message: `Internal server error: ${err}`});
+        else
+            res.status(200).json(products);
     });
 };
 
@@ -49,8 +70,9 @@ exports.best7Products = function(req, res) {
     .select({"ratings":0})
     .exec(function(err, products) {
         if (err)
-            res.status(500).send({message: `Error when finding in database: ${err}`});
-        res.status(200).json(products);
+            res.status(500).send({message: `Internal server error: ${err}`});
+        else
+            res.status(200).json(products);
     });
 };
 
@@ -63,10 +85,12 @@ exports.best7ByCategory = function(req, res) {
     .select({"ratings":0})
     .exec(function(err, products) {
         if (err)
-            res.status(500).send({message: `Error when finding in database: ${err}`});
-        res.status(200).json(products);
+            res.status(500).send({message: `Internal server error: ${err}`});
+        else
+            res.status(200).json(products);
     });
 };
+
 exports.bestByCategory = function(req, res) {
     Product.find({category:req.params.productCategory})
     .sort({avgRate:-1})
@@ -74,10 +98,12 @@ exports.bestByCategory = function(req, res) {
     .select({"ratings":0})
     .exec(function(err, products) {
         if (err)
-            res.status(500).send({message: `Error when finding in database: ${err}`});
-        res.status(200).json(products);
+            res.status(500).send({message: `Internal server error: ${err}`});
+        else
+            res.status(200).json(products);
     });
 };
+
 exports.bestByCompany = function(req, res) {
     Product.find({company:req.params.productCompany})
     .sort({avgRate:-1})
@@ -85,8 +111,9 @@ exports.bestByCompany = function(req, res) {
     .select({"ratings":0})
     .exec(function(err, products) {
         if (err)
-            res.status(500).send({message: `Error when finding in database: ${err}`});
-        res.status(200).json(products);
+            res.status(500).send({message: `Internal server error: ${err}`});
+        else
+            res.status(200).json(products);
     });
 };
 
@@ -96,8 +123,9 @@ exports.findByCategory = function(req, res) {
     .select({"ratings":0})
     .exec(function(err, product) {
         if (err)
-            res.status(500).send({message: `Error when finding in database: ${err}`});
-        res.status(200).json(product);
+            res.status(500).send({message: `Internal server error: ${err}`});
+        else
+            res.status(200).json(product);
     });
 };
 
@@ -107,8 +135,9 @@ exports.findByCompany = function(req, res) {
     .select({"ratings":0})
     .exec(function(err, product) {
         if (err)
-            res.status(500).send({message: `Error when finding in database: ${err}`});
-        res.status(200).json(product);
+            res.status(500).send({message: `Internal server error: ${err}`});
+        else
+            res.status(200).json(product);
     });
 };
 
@@ -117,8 +146,9 @@ exports.findById = function(req, res) {
     .populate({ path: 'ratings.userId' })
     .exec(function(err, product) {
         if (err)
-            res.status(500).send({message: `Error when finding in database: ${err}`});
-        res.status(200).json(product);
+            res.status(500).send({message: `Internal server error: ${err}`});
+        else
+            res.status(200).json(product);
     });
 };
 
@@ -129,7 +159,7 @@ exports.findInCategory = function(req, res) {
         .select({"ratings":0})
         .exec(function(err, products) {
             if (err)
-                res.status(500).send({message: `Error when finding in database: ${err}`});
+                res.status(500).send({message: `Internal server error: ${err}`});
             res.status(200).json(products);
         });
     } else if (req.params.category === 'Todos'){
@@ -140,7 +170,7 @@ exports.findInCategory = function(req, res) {
                 .select({"ratings":0})
                 .exec(function(err, product) {
                     if (product.length === 0) {
-                        res.status(404).send({message: `Error when finding in database: ${err}`});
+                        res.status(404).send({message: `Internal server error: ${err}`});
                     } else {
                         res.status(200).json(product);
                     }
@@ -155,7 +185,7 @@ exports.findInCategory = function(req, res) {
         .select({"ratings":0})
         .exec(function(err, product) {
             if (product.length === 0) {
-                res.status(404).send({message: `Error when finding in database: ${err}`});
+                res.status(404).send({message: `Internal server error: ${err}`});
             } else {
                 res.status(200).json(product);
             }
@@ -168,7 +198,7 @@ exports.findInCategory = function(req, res) {
             if (product.length === 0) {
                 Product.find({company: req.params.text, category: req.params.category}, function (err, product) {
                     if (product.length === 0) {
-                        res.status(404).send({message: `Error when finding in database: ${err}`});
+                        res.status(404).send({message: `Internal server error: ${err}`});
                     } else {
                         res.status(200).json(product);
                     }
@@ -187,7 +217,7 @@ exports.findInCompany = function(req, res) {
         .select({"ratings":0})
         .exec(function(err, products) {
             if (err)
-                res.status(500).send({message: `Error when finding in database: ${err}`});
+                res.status(500).send({message: `Internal server error: ${err}`});
             res.status(200).json(products);
         });
     } else if (req.params.company === 'Todas'){
@@ -198,7 +228,7 @@ exports.findInCompany = function(req, res) {
                 .select({"ratings":0})
                 .exec(function(err, product) {
                     if (product.length === 0) {
-                        res.status(500).send({message: `Error when finding in database: ${err}`});
+                        res.status(500).send({message: `Internal server error: ${err}`});
                     } else {
                         res.status(200).json(product);
                     }
@@ -213,7 +243,7 @@ exports.findInCompany = function(req, res) {
         .select({"ratings":0})
         .exec(function(err, product) {
             if (product.length === 0) {
-                res.status(500).send({message: `Error when finding in database: ${err}`});
+                res.status(500).send({message: `Internal server error: ${err}`});
             } else {
                 res.status(200).json(product);
             }
@@ -224,7 +254,7 @@ exports.findInCompany = function(req, res) {
         .select({"ratings":0})
         .exec(function (err, product) {
             if (product.length === 0) {
-                res.status(500).send({message: `Error when finding in database: ${err}`});
+                res.status(500).send({message: `Internal server error: ${err}`});
             } else {
                 res.status(200).json(product);
             }
@@ -234,23 +264,36 @@ exports.findInCompany = function(req, res) {
 
 exports.addProduct= function(req, res) {
     var newProduct = new Product(req.body);
-    newProduct.save(function(err, product) {
-        if (err)
-            res.status(500).send({message: `Error when saving in database: ${err}`});
-        res.status(200).json(product);
-        
-    });
+    var tokenInfo=req.user;
+
+    if (tokenInfo.admin){
+        newProduct.save(function(err, product) {
+            if (err)
+                res.status(500).send({message: `Internal server error: ${err}`});
+            else
+                res.status(200).json(product);
+            
+        });
+    }
+    else
+        res.status(403).send({message: 'No privileges'});
 };
 
 
 exports.updateProduct = function(req, res) {
-    Product.findOneAndUpdate({_id:req.params.productId}, req.body, {new: true})
-    .populate({ path: 'ratings.userId' })
-    .exec(function(err, product) {
-        if (err)
-            res.status(500).send({message: `Error when finding in database: ${err}`});
-        res.status(200).json(product);
-    });
+    var tokenInfo=req.user;
+
+    if(tokenInfo.admin){
+        Product.findOneAndUpdate({_id:req.params.productId}, req.body, {new: true})
+        .populate({ path: 'ratings.userId' })
+        .exec(function(err, product) {
+            if (err)
+                res.status(500).send({message: `Internal server error: ${err}`});
+            res.status(200).json(product);
+        });
+    }
+    else
+        res.status(403).send({message: 'No privileges'});
 };
 
 exports.addRating = function(req, res) {
@@ -260,22 +303,25 @@ exports.addRating = function(req, res) {
     Product.findOne({_id:req.params.productId, 'ratings.userId':rating.userId}).
     exec(function(err, product) {
         if (err)
-            res.status(500).send({message: `Error when finding in database: ${err}`});
+            res.status(500).send({message: `Internal server error: ${err}`});
 
         else if (!product){
             Product.findOneAndUpdate({_id:productId}, {$addToSet: {ratings: rating}}, {new: true}, function(err, product) {
                 if (err)
-                    res.status(500).send({message: `Error when finding in database: ${err}`});                
+                    res.status(500).send({message: `Internal server error: ${err}`}); 
 
-                this.getAvgR(product,rating, function(prod){
-                    Product.findOneAndUpdate({_id:productId}, prod, {new: true})
-                    .populate({ path: 'ratings.userId' })
-                    .exec(function(err, product) {
-                        if (err)
-                            res.status(500).send({message: `Error when finding in database: ${err}`});
-                        res.status(200).json(product);
+                else{           
+
+                    this.getAvgR(product,rating, function(prod){
+                        Product.findOneAndUpdate({_id:productId}, prod, {new: true})
+                        .populate({ path: 'ratings.userId' })
+                        .exec(function(err, product) {
+                            if (err)
+                                res.status(500).send({message: `Internal server error: ${err}`});
+                            res.status(200).json(product);
+                        });
                     });
-                });
+                }
             })
         }
         else
@@ -285,24 +331,30 @@ exports.addRating = function(req, res) {
 };
 
 exports.deleteRating = function(req, res) {   
- var rating=req.body
- var productId=req.params.productId;
+    var rating=req.body
+    var userId=rating.UserId;
+    var productId=req.params.productId;
+    var tokenInfo=req.user;
 
- Product.findOneAndUpdate({_id:productId}, {$pull: {ratings: rating}}, {new: true}, function(err, product) {
-    if (err)
-        res.status(500).send({message: `Error when finding in database: ${err}`});
-
-    this.getAvgR(product,rating, function(prod){
-        Product.findOneAndUpdate({_id:productId}, prod, {new: true})
-        .populate({ path: 'ratings.userId' })
-        .exec(function(err, product) {
+    if(userId=tokenInfo.sub || tokenInfo.admin){
+        Product.findOneAndUpdate({_id:productId}, {$pull: {ratings: rating}}, {new: true}, function(err, product) {
             if (err)
-                res.status(500).send({message: `Error when finding in database: ${err}`});
-            res.status(200).json(product);
+                res.status(500).send({message: `Internal server error: ${err}`});
+            else{
+                this.getAvgR(product,rating, function(prod){
+                    Product.findOneAndUpdate({_id:productId}, prod, {new: true})
+                    .populate({ path: 'ratings.userId' })
+                    .exec(function(err, product) {
+                        if (err)
+                            res.status(500).send({message: `Internal server error: ${err}`});
+                        res.status(200).json(product);
+                    });
+                });
+            }
         });
-    });
-        //res.status(200).json(product);
-    });
+    }
+    else
+        res.status(403).send({message: 'No privileges'});
 };
 
 exports.getRatingsBest = function(req, res) {
@@ -311,7 +363,7 @@ exports.getRatingsBest = function(req, res) {
     .populate({ path: 'ratings.userId' })
     .exec(function(err, product) {
         if (err)
-            res.status(500).send({message: `Error when finding in database: ${err}`});
+            res.status(500).send({message: `Internal server error: ${err}`});
         sortJsonArray(product.ratings, 'rate', 'des')
         res.status(200).json(product.ratings);
     });
@@ -323,18 +375,24 @@ exports.getRatingsWorst = function(req, res) {
     .populate({ path: 'ratings.userId' })
     .exec(function(err, product) {
         if (err)
-            res.status(500).send({message: `Error when finding in database: ${err}`});
-        sortJsonArray(product.ratings, 'rate', 'asc')
-        res.status(200).json(product.ratings);
+            res.status(500).send({message: `Internal server error: ${err}`});
+        else{
+            sortJsonArray(product.ratings, 'rate', 'asc')
+            res.status(200).json(product.ratings);
+        }
     });
 };
 
 exports.deleteProduct = function(req, res) {
-    Product.findByIdAndRemove(req.params.productId, function(err, product) {
-        if (err)
-            res.status(500).send({message: `Error when deleting in database: ${err}`});
-        res.status(200).json({ message: 'Product successfully deleted' });
-    });
+    var tokenInfo=req.user;
+
+    if(tokenInfo.admin){
+        Product.findByIdAndRemove(req.params.productId, function(err, product) {
+            if (err)
+                res.status(500).send({message: `Internal server error: ${err}`});
+            res.status(200).json({ message: 'Product successfully deleted' });
+        });
+    }
 };
 
 //PRIVATE

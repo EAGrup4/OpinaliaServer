@@ -19,6 +19,8 @@ router.get('/best7',products.best7Products);
 router.get('/id/:productId',products.findById);
 //Get a product by name
 router.get('/name/:productName',products.findByName);
+//search products by any fileld
+router.get('/search/:word',products.SearchAny);
 
 //Get a product by category
 router.get('/category/:productCategory', products.findByCategory);
