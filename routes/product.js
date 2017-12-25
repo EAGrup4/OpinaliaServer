@@ -41,6 +41,8 @@ router.get('/company/:text/:company', products.findInCompany);
 //Ratings options
 router.get('/ratings/best/:productId', products.getRatingsBest);//ratings ordered by best
 router.get('/ratings/worst/:productId', products.getRatingsWorst);//ratings ordered by worst
+router.get('/ratings/new/:productId', products.getRatingsNew);//ratings ordered by new
+router.get('/ratings/old/:productId', products.getRatingsOld);//ratings ordered by old
 
 
 

@@ -9,7 +9,7 @@ var sortJsonArray = require('sort-json-array');
 exports.listAllProducts = function(req, res) {
     Product.find()
     //.populate({ path: 'ratings.userId' })
-    //.select({"ratings":0})
+    .select({"ratings":0})
     .exec(function(err, products) {
         if (err)
             res.status(500).send({message: `Internal server error: ${err}`});
@@ -299,6 +299,9 @@ exports.updateProduct = function(req, res) {
 exports.addRating = function(req, res) {
     var rating=req.body
     var productId=req.params.productId;
+    userId=req.user.sub;
+    rating.userId=userId;
+    console.log(rating)
     
     Product.findOne({_id:req.params.productId, 'ratings.userId':rating.userId}).
     exec(function(err, product) {
@@ -364,7 +367,8 @@ exports.getRatingsBest = function(req, res) {
     .exec(function(err, product) {
         if (err)
             res.status(500).send({message: `Internal server error: ${err}`});
-        sortJsonArray(product.ratings, 'rate', 'des')
+        //sortJsonArray(product.ratings, 'rate', 'des')
+        product.ratings.sort(function(a, b){return b.rate-a.rate});
         res.status(200).json(product.ratings);
     });
 };
@@ -377,7 +381,36 @@ exports.getRatingsWorst = function(req, res) {
         if (err)
             res.status(500).send({message: `Internal server error: ${err}`});
         else{
-            sortJsonArray(product.ratings, 'rate', 'asc')
+            //sortJsonArray(product.ratings, 'rate', 'asc')
+            product.ratings.sort(function(a, b){return a.rate-b.rate});
+            res.status(200).json(product.ratings);
+        }
+    });
+};
+
+exports.getRatingsOld = function(req, res) {
+    Product.findOne({_id:req.params.productId})
+    //.limit(2)
+    .populate({ path: 'ratings.userId' })
+    .exec(function(err, product) {
+        if (err)
+            res.status(500).send({message: `Internal server error: ${err}`});
+        //sortJsonArray(product.ratings, 'rate', 'des')
+        product.ratings.sort(function(a, b){return a.date-b.date});
+        res.status(200).json(product.ratings);
+    });
+};
+
+exports.getRatingsNew = function(req, res) {
+    Product.findOne({_id:req.params.productId})
+    //.limit(7)
+    .populate({ path: 'ratings.userId' })
+    .exec(function(err, product) {
+        if (err)
+            res.status(500).send({message: `Internal server error: ${err}`});
+        else{
+            //sortJsonArray(product.ratings, 'rate', 'asc')
+            product.ratings.sort(function(a, b){return b.date-a.date});
             res.status(200).json(product.ratings);
         }
     });
@@ -401,17 +434,19 @@ getAvgR = function(product, rating, callback){
     var total = 0;
     var ratings=[]
     ratings=product.ratings;
+
     if(ratings.length>0){
         for(var i = 0; i < ratings.length; i++) {
             total += ratings[i].rate;
         }
         product.avgRate = (total / ratings.length).toFixed(1);
-    } else
-    product.avgRate = 0;
-        //console.log("total: "+total)
-        //console.log (product)
-        //product.avgRate=(product.totalRate/product.numRates).toFixed(1);
-        callback(product)
-        //res.status(200).json(product);
+    } 
 
-    };
+    else
+        product.avgRate = 0;
+    //console.log("total: "+total)
+    //console.log (product)
+    //product.avgRate=(product.totalRate/product.numRates).toFixed(1);
+    callback(product)
+    //res.status(200).json(product);
+}
