@@ -1,0 +1,1 @@
+Here store the temporal images when uploading. Then they are deleted

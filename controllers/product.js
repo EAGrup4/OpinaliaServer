@@ -1,10 +1,69 @@
 var mongoose = require('mongoose');
 var Product = mongoose.model('Product');
 var Rating = mongoose.model('Rating');
+var Image = mongoose.model('Image');
 var jwt = require('../services/jwt');
-var sortJsonArray = require('sort-json-array');
+var cloudinary = require('cloudinary').v2;
+var multer = require('multer');
+var path = require('path');
+var fs = require('fs');
 
+//Storage variable, for storin temporal images
+var storage = multer.diskStorage({
+  // destino del fichero
+  destination: function (req, file, cb) {
+    cb(null, './temp/')
+  },
+  // renombrar fichero
+  filename: function (req, file, cb) {
+    cb(null, req.params.productId + '-'+ Date.now()+ path.extname(file.originalname));
+  }
+});
 
+exports.uploadImage = function(req, res) {
+    var productId=req.params.productId;
+    var tokenInfo=req.user;
+    var upload = multer({ storage: storage 
+    }).array("uploads[]", 12);
+
+    if(tokenInfo.admin){
+        upload(req, res, function(err) {
+            if(err)
+                res.status(500).send({message: `Internal server error: ${err}`})
+            else{
+                var file=req.files;
+                //console.log(file[0].filename);
+                cloudinary.uploader.upload(file[0].path, {folder: "opinalia/products"},function(err, result) {
+                    if(err)
+                        res.status(500).send({message: `Internal server error: ${err}`})
+                    else{
+                        var newImage = new Image();
+                        newImage.src=result.url;
+                        newImage.publicId=result.public_id;
+                        console.log(productId)
+
+                        Product.findOneAndUpdate({_id:productId}, {$addToSet: {images: newImage}},{new: true})
+                        .populate({ path: 'ratings.userId' })
+                        .exec(function(err, product) {
+                            if(err)
+                                res.status(500).send({message: `Internal server error: ${err}`})
+                            else{
+                                console.log(file[0].path)
+                                fs.unlink(file[0].path, function(error) {
+                                    if (error) {
+                                        throw error;
+                                    }
+                                    res.status(200).json(product)
+
+                                });
+                            }
+                        })
+                    }
+                });
+            }
+        })
+    }
+}
 
 exports.listAllProducts = function(req, res) {
     Product.find()

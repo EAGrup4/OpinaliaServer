@@ -58,7 +58,9 @@ router.post('/:productId', md_auth.ensureAuth, products.updateProduct);
 //Add rating to a product
 router.post('/rating/:productId', md_auth.ensureAuth, products.addRating);
 //Delete rating from product
-router.post('/pullRating/:productId/', md_auth.ensureAuth, products.deleteRating);
+router.post('/pullRating/:productId', md_auth.ensureAuth, products.deleteRating);
+//Upload an image to product
+router.post('/image/add/:productId', md_auth.ensureAuth, products.uploadImage);
 
 
 //DELETE REQUESTS

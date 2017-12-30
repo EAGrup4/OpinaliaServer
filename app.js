@@ -5,6 +5,9 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
+var dotenv = require('dotenv');
+dotenv.load();
+var cloudinary = require('cloudinary').v2;
 
 var productModel = require('./models/product');
 var productRoutes = require('./routes/product');
@@ -12,6 +15,13 @@ var userModel = require('./models/user');
 var userRoutes = require('./routes/user');
 
 var app = express();
+
+//allow cors
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Authorization, Accept");
+  next();
+});
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -25,6 +35,14 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+//Load cloudinary configuration
+if (typeof(process.env.CLOUDINARY_URL)=='undefined'){
+	console.warn('!! cloudinary config is undefined !!');
+	console.warn('export CLOUDINARY_URL or set dotenv file')
+}else{
+	console.log('cloudinary config:');
+	console.log(cloudinary.config())
+}
 
 
 
