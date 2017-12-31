@@ -40,7 +40,7 @@ exports.uploadImage = function(req, res) {
                         var newImage = new Image();
                         newImage.src=result.url;
                         newImage.publicId=result.public_id;
-                        console.log(productId)
+                        console.log(result)
 
                         Product.findOneAndUpdate({_id:productId}, {$addToSet: {images: newImage}},{new: true})
                         .populate({ path: 'ratings.userId' })
@@ -69,6 +69,23 @@ exports.listAllProducts = function(req, res) {
     Product.find()
     //.populate({ path: 'ratings.userId' })
     .select({"ratings":0})
+    .exec(function(err, products) {
+        if (err)
+            res.status(500).send({message: `Internal server error: ${err}`});
+        else
+            res.status(200).json(products);
+    });
+};
+
+exports.getNew = function(req, res) {
+    var limit = req.params.limit;
+    console.log(limit)
+
+    Product.find()
+    //.populate({ path: 'ratings.userId' })
+    .select({"ratings":0})
+    .sort({date:-1})
+    .limit(Number(limit))
     .exec(function(err, products) {
         if (err)
             res.status(500).send({message: `Internal server error: ${err}`});

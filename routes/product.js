@@ -38,6 +38,8 @@ router.get('/company/best/:productCompany',products.bestByCompany);
 //Get a product by name and/or company**
 router.get('/company/:text/:company', products.findInCompany);
 
+router.get('/new/:limit', products.getNew);
+
 //Ratings options
 router.get('/ratings/best/:productId', products.getRatingsBest);//ratings ordered by best
 router.get('/ratings/worst/:productId', products.getRatingsWorst);//ratings ordered by worst
