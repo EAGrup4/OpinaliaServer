@@ -73,6 +73,7 @@ exports.loginUser=function(req,res){
                 bcrypt.compare(password,user.password, function(err, check){
                     if(check) {
 
+                        console.log(user);
                         user.token=jwt.createToken(user);
                         res.status(200).json(user);
 
@@ -85,7 +86,39 @@ exports.loginUser=function(req,res){
             }
         }
     });
-}
+};
+exports.loginUserFB=function(req,res){
+    var params = req.body;
+    var email = params.email;
+    console.log(params);
+
+    User.findOne({email: email.toLowerCase()}, function(err, user) {
+        if(err){
+            res.status(500).send({message: 'Internal server error'});
+        }else{
+            if(user){
+                console.log(user);
+                user.token=jwt.createToken(user);
+                res.status(200).json(user);
+
+            }else{
+                var newUser = new User(req.body);
+                console.log(newUser);
+                newUser.save(function (err, user) {
+                    if (err) {
+                        console.log('error');
+                        res.status(500).send({message: `Internal server error: ${err}`});
+                    }
+                    else{
+                        user.token=jwt.createToken(user);
+                        res.status(200).json(user);
+                    }
+                });
+            }
+        }
+    });
+
+};
 
 
 exports.updateUser = function(req, res) {

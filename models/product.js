@@ -1,7 +1,7 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var userModel = require('./user');
-var User = mongoose.model('User')
+var User = mongoose.model('User');
 
 var imageSchema = mongoose.Schema({src:String},{ _id : false });
 
@@ -10,7 +10,7 @@ var ratings = mongoose.Schema({
 	title:{type:String,required : true},
 	comment:{type:String,required : true},
 	rate:{type:Number,required : true},
-	date: { type: Date, default: Date.now },
+	date: { type: Date, default: Date.now }
 	},{ _id : false });
 
 var specs = mongoose.Schema({

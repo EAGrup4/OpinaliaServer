@@ -19,6 +19,7 @@ router.get('/name/:name',md_auth.ensureAuth, users.findByName);
 router.post('/register', users.registerUser);
 //Login a user
 router.post('/login', users.loginUser);
+router.post('/loginFB', users.loginUserFB);
 
 
 //UPDATE REQUESTS
