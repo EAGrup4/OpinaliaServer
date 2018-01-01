@@ -1,15 +1,91 @@
 var mongoose = require('mongoose');
 var Product = mongoose.model('Product');
 var Rating = mongoose.model('Rating');
+var Image = mongoose.model('Image');
 var jwt = require('../services/jwt');
-var sortJsonArray = require('sort-json-array');
+var cloudinary = require('cloudinary').v2;
+var multer = require('multer');
+var path = require('path');
+var fs = require('fs');
 
+//Storage variable, for storin temporal images
+var storage = multer.diskStorage({
+  // destino del fichero
+  destination: function (req, file, cb) {
+    cb(null, './temp/')
+  },
+  // renombrar fichero
+  filename: function (req, file, cb) {
+    cb(null, req.params.productId + '-'+ Date.now()+ path.extname(file.originalname));
+  }
+});
 
+exports.uploadImage = function(req, res) {
+    var productId=req.params.productId;
+    var tokenInfo=req.user;
+    var upload = multer({ storage: storage 
+    }).array("uploads[]", 12);
+
+    if(tokenInfo.admin){
+        upload(req, res, function(err) {
+            if(err)
+                res.status(500).send({message: `Internal server error: ${err}`})
+            else{
+                var file=req.files;
+                //console.log(file[0].filename);
+                cloudinary.uploader.upload(file[0].path, {folder: "opinalia/products"},function(err, result) {
+                    if(err)
+                        res.status(500).send({message: `Internal server error: ${err}`})
+                    else{
+                        var newImage = new Image();
+                        newImage.src=result.url;
+                        newImage.publicId=result.public_id;
+                        console.log(result)
+
+                        Product.findOneAndUpdate({_id:productId}, {$addToSet: {images: newImage}},{new: true})
+                        .populate({ path: 'ratings.userId' })
+                        .exec(function(err, product) {
+                            if(err)
+                                res.status(500).send({message: `Internal server error: ${err}`})
+                            else{
+                                console.log(file[0].path)
+                                fs.unlink(file[0].path, function(error) {
+                                    if (error) {
+                                        throw error;
+                                    }
+                                    res.status(200).json(product)
+
+                                });
+                            }
+                        })
+                    }
+                });
+            }
+        })
+    }
+}
 
 exports.listAllProducts = function(req, res) {
     Product.find()
     //.populate({ path: 'ratings.userId' })
-    //.select({"ratings":0})
+    .select({"ratings":0})
+    .exec(function(err, products) {
+        if (err)
+            res.status(500).send({message: `Internal server error: ${err}`});
+        else
+            res.status(200).json(products);
+    });
+};
+
+exports.getNew = function(req, res) {
+    var limit = req.params.limit;
+    console.log(limit)
+
+    Product.find()
+    //.populate({ path: 'ratings.userId' })
+    .select({"ratings":0})
+    .sort({date:-1})
+    .limit(Number(limit))
     .exec(function(err, products) {
         if (err)
             res.status(500).send({message: `Internal server error: ${err}`});
@@ -299,6 +375,9 @@ exports.updateProduct = function(req, res) {
 exports.addRating = function(req, res) {
     var rating=req.body
     var productId=req.params.productId;
+    userId=req.user.sub;
+    rating.userId=userId;
+    console.log(rating)
     
     Product.findOne({_id:req.params.productId, 'ratings.userId':rating.userId}).
     exec(function(err, product) {
@@ -364,7 +443,8 @@ exports.getRatingsBest = function(req, res) {
     .exec(function(err, product) {
         if (err)
             res.status(500).send({message: `Internal server error: ${err}`});
-        sortJsonArray(product.ratings, 'rate', 'des')
+        //sortJsonArray(product.ratings, 'rate', 'des')
+        product.ratings.sort(function(a, b){return b.rate-a.rate});
         res.status(200).json(product.ratings);
     });
 };
@@ -377,7 +457,36 @@ exports.getRatingsWorst = function(req, res) {
         if (err)
             res.status(500).send({message: `Internal server error: ${err}`});
         else{
-            sortJsonArray(product.ratings, 'rate', 'asc')
+            //sortJsonArray(product.ratings, 'rate', 'asc')
+            product.ratings.sort(function(a, b){return a.rate-b.rate});
+            res.status(200).json(product.ratings);
+        }
+    });
+};
+
+exports.getRatingsOld = function(req, res) {
+    Product.findOne({_id:req.params.productId})
+    //.limit(2)
+    .populate({ path: 'ratings.userId' })
+    .exec(function(err, product) {
+        if (err)
+            res.status(500).send({message: `Internal server error: ${err}`});
+        //sortJsonArray(product.ratings, 'rate', 'des')
+        product.ratings.sort(function(a, b){return a.date-b.date});
+        res.status(200).json(product.ratings);
+    });
+};
+
+exports.getRatingsNew = function(req, res) {
+    Product.findOne({_id:req.params.productId})
+    //.limit(7)
+    .populate({ path: 'ratings.userId' })
+    .exec(function(err, product) {
+        if (err)
+            res.status(500).send({message: `Internal server error: ${err}`});
+        else{
+            //sortJsonArray(product.ratings, 'rate', 'asc')
+            product.ratings.sort(function(a, b){return b.date-a.date});
             res.status(200).json(product.ratings);
         }
     });
@@ -401,17 +510,19 @@ getAvgR = function(product, rating, callback){
     var total = 0;
     var ratings=[]
     ratings=product.ratings;
+
     if(ratings.length>0){
         for(var i = 0; i < ratings.length; i++) {
             total += ratings[i].rate;
         }
         product.avgRate = (total / ratings.length).toFixed(1);
-    } else
-    product.avgRate = 0;
-        //console.log("total: "+total)
-        //console.log (product)
-        //product.avgRate=(product.totalRate/product.numRates).toFixed(1);
-        callback(product)
-        //res.status(200).json(product);
+    } 
 
-    };
+    else
+        product.avgRate = 0;
+    //console.log("total: "+total)
+    //console.log (product)
+    //product.avgRate=(product.totalRate/product.numRates).toFixed(1);
+    callback(product)
+    //res.status(200).json(product);
+}

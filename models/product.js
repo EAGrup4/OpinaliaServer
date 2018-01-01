@@ -3,7 +3,10 @@ var Schema = mongoose.Schema;
 var userModel = require('./user');
 var User = mongoose.model('User');
 
-var imageSchema = mongoose.Schema({src:String},{ _id : false });
+var imageSchema = mongoose.Schema({
+	src:String,
+	publicId:String
+	},{ _id : false });
 
 var ratings = mongoose.Schema({
 	userId:{type:Schema.ObjectId, ref: 'User',required: true, unique: true},
@@ -32,3 +35,4 @@ var product = mongoose.Schema({
 
 module.exports=mongoose.model('Product', product);
 module.exports=mongoose.model('Rating', ratings);
+module.exports=mongoose.model('Image', imageSchema);
