@@ -5,6 +5,7 @@ var user = mongoose.Schema({
     email: { type : String , unique : true, required : true},
     password: {type:String,required : true},
 	profileImage:String,
+	imagePublicId:String,
 	admin:{type: Boolean, default:false},
 	token:String
 },{collection:'users'});

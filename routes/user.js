@@ -27,6 +27,8 @@ router.post('/loginFB', users.loginUserFB);
 router.post('/:userId', md_auth.ensureAuth, users.updateUser);
 //Update provisional
 router.post('/update/:userId', users.updateUser2);
+//Upload an image to product
+router.post('/image/add/:userId', md_auth.ensureAuth, users.uploadImage);
 
 //DELETE REQUESTS
 //Delete user by id
