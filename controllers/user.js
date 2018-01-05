@@ -44,6 +44,9 @@ exports.uploadImage = function(req, res) {
     }).array("uploads[]", 12);
 
     if(userId != tokenInfo.sub && !tokenInfo.admin){
+        res.status(403).send({message: 'No privileges'});
+    }
+    else{        
         upload(req, res, function(err) {
             if(err)
                 res.status(500).send({message: `Internal server error: ${err}`})
@@ -79,8 +82,6 @@ exports.uploadImage = function(req, res) {
             }
         })
     }
-    else
-        res.status(403).send({message: 'No privileges'});
 }
 
 exports.findByEmail = function(req, res) {
@@ -104,10 +105,15 @@ exports.findByName = function(req, res) {
 exports.registerUser = function(req, res) {
     bcrypt.hash(req.body.password, null, null, function (err, hash) {
         if (err)
-            s.status(500).send({message: `Internal server error: ${err}`});
+            res.status(500).send({message: `Internal server error: ${err}`});
         else{
             var newUser = new User(req.body);
             newUser.password = hash;
+
+            delete newUser.admin;
+            delete newUser.profileImage;
+            delete newUser.imagePublicId;
+
             newUser.save(function (err, user) {
                 if (err)
                     res.status(500).send({message: `Internal server error: ${err}`});
@@ -185,25 +191,46 @@ exports.updateUser = function(req, res) {
     var update = req.body;
     var tokenInfo=req.user;
 
-    bcrypt.hash(req.body.password, null, null, function (err, hash) {
-        var update = req.body;
-        update.password=hash;
-        if (err)
-            res.status(500).send({message: `Internal server error: ${err}`});
+    if(userId != tokenInfo.sub && !tokenInfo.admin){
+        res.status(403).send({message: 'No privileges'});
+    }
+    else{
+        if(!tokenInfo.admin)
+            delete update.admin;
+
+        delete update.profileImage;
+        delete update.imagePublicId;
+
+        if (req.body.password)
+            bcrypt.hash(req.body.password, null, null, function (err, hash) {
+                if (err)
+                    res.status(500).send({message: `Internal server error: ${err}`});
+                else{
+                    var update = req.body;
+                    update.password=hash;
+
+                    User.findByIdAndUpdate(userId, update, {new: true}, function(err, user) {
+                        if (err)
+                            res.status(500).send({message: `Internal server error: ${err}`});
+                        else
+                            res.status(200).json(user);
+                    });
+                    
+                }
+            });
+
         else{
-            if(userId != tokenInfo.sub && !tokenInfo.admin){
-                res.status(403).send({message: 'No privileges'});
-            }
-            else{
-                User.findByIdAndUpdate(userId, update, {new: true}, function(err, user) {
-                    if (err)
-                        res.status(500).send({message: `Internal server error: ${err}`});
-                    else
-                        res.status(200).json(user);
-                });
-            }
+            var update = req.body;
+
+            User.findByIdAndUpdate(userId, update, {new: true}, function(err, user) {
+                if (err)
+                    res.status(500).send({message: `Internal server error: ${err}`});
+                else
+                    res.status(200).json(user);
+            });
+
         }
-    });
+    }
 };
 
 
