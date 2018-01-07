@@ -2,8 +2,7 @@ var mongoose = require('mongoose');
 var User = mongoose.model('User');
 var bcrypt = require('bcrypt-nodejs');
 var jwt = require('../services/jwt');
-
-
+var nodemailer = require("nodemailer");
 
 exports.listAllUsers = function(req, res) {
     var tokenInfo=req.user;
@@ -190,4 +189,49 @@ exports.deleteUser2 = function(req, res) {
             res.status(500).send({message: `Internal server error: ${err}`});
         res.status(200).json({ message: 'User successfully deleted' });
     });
+};
+
+var smtpTransport = nodemailer.createTransport({
+    service: "Gmail",
+    secure: false, // use SSL
+    tls: {
+        rejectUnauthorized: false
+    },
+    auth: {
+        user: "ea.aleixguillemgurkeemikel@gmail.com",
+        pass: "proyectoea"
+    }
+});
+
+exports.postContact = function(req, res) {
+    req.assert('name', 'Name cannot be blank').notEmpty();
+    req.assert('email', 'Email is not valid').isEmail();
+    req.assert('message', 'Message cannot be blank').notEmpty();
+
+    var errors = req.validationErrors();
+
+    if (errors) {
+        res.status(400).send({message: errors});
+    }else {
+        var from = req.body.email;
+        var name = req.body.name;
+        var body = req.body.message;
+        var to = 'ea.aleixguillemgurkeemikel@gmail.com';
+        var subject = 'Contact Form | Opinalia (' + name + ')';
+
+        var mailOptions = {
+            to: to,
+            from: from,
+            subject: subject,
+            text: body
+        };
+
+        smtpTransport.sendMail(mailOptions, function (err, response) {
+            if (err) {
+                res.status(500).send({message: `Internal server error: ${err}`});
+            } else {
+                res.status(200).json({message: "Message sent: " + response.message});
+            }
+        });
+    }
 };

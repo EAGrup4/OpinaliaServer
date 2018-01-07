@@ -20,6 +20,8 @@ router.post('/register', users.registerUser);
 //Login a user
 router.post('/login', users.loginUser);
 router.post('/loginFB', users.loginUserFB);
+//Contact
+router.post('/contact', users.postContact);
 
 
 //UPDATE REQUESTS
@@ -33,6 +35,7 @@ router.post('/update/:userId', users.updateUser2);
 router.delete('/:userId', md_auth.ensureAuth, users.deleteUser);
 //Delete provisional
 router.delete('/delete/:userId', users.deleteUser2);
+
 
 
 module.exports=router;

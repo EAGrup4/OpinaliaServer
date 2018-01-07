@@ -22,3 +22,19 @@ Quitado populate y envio de ratings en:
 * find by company
 * find text in category
 * find text in company
+__________________________________________________________________________________
+CAMBIOS GURKEERAT 08/01/2018 (enviar email a nuestro gmail ea.aleixguillemgurkeemikel@gmail.com)
+
+Añadidas 3 dependencias nuevas:
+
+*nodemailer
+*validator
+*jade
+
+Añadida una ruta nueva en user.js
+
+*/contact:
+
+**Valida el formato de los datos que le llegan desde el cliente.
+**Si el formato es correcto, envia el email.
+**Si el formato no es correcto, te devuelve un error y no envia el email.

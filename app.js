@@ -13,6 +13,8 @@ var productModel = require('./models/product');
 var productRoutes = require('./routes/product');
 var userModel = require('./models/user');
 var userRoutes = require('./routes/user');
+var validator = require('express-validator');
+
 
 var app = express();
 
@@ -34,6 +36,8 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(validator());
+
 
 //Load cloudinary configuration
 if (typeof(process.env.CLOUDINARY_URL)=='undefined'){
