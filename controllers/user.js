@@ -8,6 +8,7 @@ var path = require('path');
 var fs = require('fs');
 var nodemailer = require("nodemailer");
 
+
 //Storage variable, for storin temporal images
 var storage = multer.diskStorage({
   // destino del fichero
@@ -18,6 +19,19 @@ var storage = multer.diskStorage({
   filename: function (req, file, cb) {
     cb(null, req.params.userId + '-'+ Date.now()+ path.extname(file.originalname));
   }
+});
+
+//load smtp user
+var smtpTransport = nodemailer.createTransport({
+    service: "Gmail",
+    secure: false,
+    tls: {
+        rejectUnauthorized: false
+    },
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASSWORD
+    }
 });
 
 exports.listAllUsers = function(req, res) {
@@ -249,18 +263,6 @@ exports.deleteUser = function(req, res) {
     
 
 };
-
-var smtpTransport = nodemailer.createTransport({
-    service: "Gmail",
-    secure: false,
-    tls: {
-        rejectUnauthorized: false
-    },
-    auth: {
-        user: "ea.aleixguillemgurkeemikel@gmail.com",
-        pass: "proyectoea"
-    }
-});
 
 exports.postContact = function(req, res) {
     req.assert('name', 'Name cannot be blank').notEmpty();
