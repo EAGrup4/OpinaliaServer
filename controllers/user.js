@@ -6,7 +6,7 @@ var cloudinary = require('cloudinary').v2;
 var multer = require('multer');
 var path = require('path');
 var fs = require('fs');
-
+var nodemailer = require("nodemailer");
 
 //Storage variable, for storin temporal images
 var storage = multer.diskStorage({
@@ -19,7 +19,6 @@ var storage = multer.diskStorage({
     cb(null, req.params.userId + '-'+ Date.now()+ path.extname(file.originalname));
   }
 });
-var nodemailer = require("nodemailer");
 
 exports.listAllUsers = function(req, res) {
     var tokenInfo=req.user;
@@ -83,7 +82,7 @@ exports.uploadImage = function(req, res) {
             }
         })
     }
-}
+};
 
 exports.findByEmail = function(req, res) {
     User.find({email:req.params.email}, function(err, user) {
@@ -126,7 +125,6 @@ exports.registerUser = function(req, res) {
         }
     });
 };
-
 
 exports.loginUser=function(req,res){
     var params = req.body;
@@ -186,7 +184,6 @@ exports.loginUserFB=function(req,res){
 
 };
 
-
 exports.updateUser = function(req, res) {
     var userId = req.params.userId;
     var update = req.body;
@@ -234,9 +231,6 @@ exports.updateUser = function(req, res) {
     }
 };
 
-
-
-
 exports.deleteUser = function(req, res) {
     var userId = req.params.userId;
     var tokenInfo=req.user;
@@ -258,7 +252,7 @@ exports.deleteUser = function(req, res) {
 
 var smtpTransport = nodemailer.createTransport({
     service: "Gmail",
-    secure: false, // use SSL
+    secure: false,
     tls: {
         rejectUnauthorized: false
     },
