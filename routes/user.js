@@ -27,14 +27,12 @@ router.post('/contact', users.postContact);
 //UPDATE REQUESTS
 //Update user by id
 router.post('/:userId', md_auth.ensureAuth, users.updateUser);
-//Update provisional
-router.post('/update/:userId', users.updateUser2);
+router.post('/image/add/:userId', md_auth.ensureAuth, users.uploadImage);
 
 //DELETE REQUESTS
 //Delete user by id
 router.delete('/:userId', md_auth.ensureAuth, users.deleteUser);
-//Delete provisional
-router.delete('/delete/:userId', users.deleteUser2);
+
 
 
 
