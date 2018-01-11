@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/EAGrup4/Server#readme",
   "dependencies": {
+    "async": "2.6.0",
     "bcrypt": "^1.0.3",
     "bcrypt-nodejs": "0.0.3",
     "bluebird": "^3.5.1",

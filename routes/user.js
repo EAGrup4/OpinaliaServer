@@ -22,6 +22,10 @@ router.post('/login', users.loginUser);
 router.post('/loginFB', users.loginUserFB);
 //Contact
 router.post('/contact', users.postContact);
+//Forgot password
+router.post('/auth/forgotPassword', users.forgot_password);
+//Reset password
+router.post('/auth/reset_password', users.reset_password);
 
 
 //UPDATE REQUESTS
@@ -32,6 +36,7 @@ router.post('/image/add/:userId', md_auth.ensureAuth, users.uploadImage);
 //DELETE REQUESTS
 //Delete user by id
 router.delete('/:userId', md_auth.ensureAuth, users.deleteUser);
+
 
 
 
