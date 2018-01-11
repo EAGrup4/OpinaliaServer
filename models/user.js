@@ -7,7 +7,9 @@ var user = mongoose.Schema({
 	profileImage:String,
 	imagePublicId:String,
 	admin:{type: Boolean, default:false},
-	token:String
+	token:String,
+    reset_password_token: String,
+    reset_password_expires: Date
 },{collection:'users'});
 
 module.exports=mongoose.model('User', user);

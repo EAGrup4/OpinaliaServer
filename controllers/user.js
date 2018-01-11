@@ -6,7 +6,9 @@ var cloudinary = require('cloudinary').v2;
 var multer = require('multer');
 var path = require('path');
 var fs = require('fs');
-var nodemailer = require("nodemailer");
+var nodemailer = require("nodemailer"),
+    async = require('async'),
+    crypto = require('crypto');
 
 //Storage variable, for storin temporal images
 var storage = multer.diskStorage({
@@ -257,8 +259,8 @@ var smtpTransport = nodemailer.createTransport({
         rejectUnauthorized: false
     },
     auth: {
-        user: "ea.aleixguillemgurkeemikel@gmail.com",
-        pass: "proyectoea"
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASSWORD
     }
 });
 
@@ -293,5 +295,105 @@ exports.postContact = function(req, res) {
             }
         });
     }
+};
+
+exports.forgot_password = function(req, res) {
+    async.waterfall([
+        function(done) {
+            User.findOne({
+                email: req.body.email
+            }).exec(function(err, user) {
+                if (user) {
+                    done(err, user);
+                } else {
+                    done('User not found.');
+                }
+            });
+        },
+        function(user, done) {
+            // create the random token
+            crypto.randomBytes(20, function(err, buffer) {
+                var token = buffer.toString('hex');
+                done(err, user, token);
+            });
+        },
+        function(user, token, done) {
+            User.findByIdAndUpdate({ _id: user._id }, { reset_password_token: token, reset_password_expires: Date.now() + 86400000 }, { upsert: true, new: true }).exec(function(err, new_user) {
+                done(err, token, new_user);
+            });
+        },
+        function(token, user, done) {
+            var data = {
+                to: user.email,
+                from: "ea.aleixguillemgurkeemikel@gmail.com",
+                template: 'forgot-password-email',
+                subject: 'Password help has arrived!',
+                context: {
+                    url: 'http://localhost/reset_password?token=' + token,
+                    name: user.name.split(' ')[0]
+                },
+                html: 'http://localhost/reset_password?token=' + token
+            };
+
+            smtpTransport.sendMail(data, function(err) {
+                if (!err) {
+                    return res.json({ message: 'Kindly check your email for further instructions' });
+                } else {
+                    return done(err);
+                }
+            });
+        }
+    ], function(err) {
+        return res.status(422).json({ message: err });
+    });
+};
+
+exports.reset_password = function(req, res, next) {
+    User.findOne({
+        reset_password_token: req.body.token,
+        reset_password_expires: {
+            $gt: Date.now()
+        }
+    }).exec(function(err, user) {
+        if (!err && user) {
+            bcrypt.hash(req.body.password, null, null, function (err, hash) {
+                if (err)
+                    res.status(500).send({message: `Internal server error: ${err}`});
+                else{
+                    user.password = hash;
+                }
+            });
+            user.reset_password_token = undefined;
+            user.reset_password_expires = undefined;
+            user.save(function(err) {
+                if (err) {
+                    return res.status(422).send({
+                        message: err
+                    });
+                } else {
+                    var data = {
+                        to: user.email,
+                        from: 'ea.aleixguillemgurkeemikel@gmail.com',
+                        template: 'reset-password-email',
+                        subject: 'Password Reset Confirmation',
+                        context: {
+                            name: user.name.split(' ')[0]
+                        }
+                    };
+                    smtpTransport.sendMail(data, function(err) {
+                        if (!err) {
+                            return res.json({ message: 'Password reset' });
+                        } else {
+                            return done(err);
+                        }
+                    });
+                }
+            });
+        } else {
+            return res.status(400).send({
+                message: 'Password reset token is invalid or has expired.'
+            });
+        }
+    });
 };
 
