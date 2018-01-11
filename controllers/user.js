@@ -22,6 +22,18 @@ var storage = multer.diskStorage({
   }
 });
 
+var smtpTransport = nodemailer.createTransport({
+    service: "Gmail",
+    secure: false,
+    tls: {
+        rejectUnauthorized: false
+    },
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASSWORD
+    }
+});
+
 exports.listAllUsers = function(req, res) {
     var tokenInfo=req.user;
 
@@ -251,18 +263,6 @@ exports.deleteUser = function(req, res) {
     
 
 };
-
-var smtpTransport = nodemailer.createTransport({
-    service: "Gmail",
-    secure: false,
-    tls: {
-        rejectUnauthorized: false
-    },
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASSWORD
-    }
-});
 
 exports.postContact = function(req, res) {
     req.assert('name', 'Name cannot be blank').notEmpty();
