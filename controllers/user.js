@@ -277,7 +277,7 @@ exports.postContact = function(req, res) {
         var from = req.body.email;
         var name = req.body.name;
         var body = req.body.message;
-        var to = 'ea.aleixguillemgurkeemikel@gmail.com';
+        var to = process.env.EMAIL_USER;
         var subject = 'Contact Form | Opinalia (' + name + ')';
 
         var mailOptions = {
@@ -325,7 +325,7 @@ exports.forgot_password = function(req, res) {
         function(token, user, done) {
             var data = {
                 to: user.email,
-                from: "ea.aleixguillemgurkeemikel@gmail.com",
+                from: process.env.EMAIL_USER,
                 template: 'forgot-password-email',
                 subject: 'Password help has arrived!',
                 context: {
