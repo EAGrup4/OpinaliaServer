@@ -391,8 +391,9 @@ exports.addRating = function(req, res) {
 
                 else{           
 
-                    this.getAvgR(product,rating, function(prod){
-                        Product.findOneAndUpdate({_id:productId}, prod, {new: true})
+                    this.getAvgR(product, function(prod){
+                        delete prod._id;
+                        Product.findOneAndUpdate({_id:prod._id}, prod, {new: true})
                         .populate({ path: 'ratings.userId' })
                         .exec(function(err, product) {
                             if (err)
@@ -420,8 +421,8 @@ exports.deleteRating = function(req, res) {
             if (err)
                 res.status(500).send({message: `Internal server error: ${err}`});
             else{
-                this.getAvgR(product,rating, function(prod){
-                    Product.findOneAndUpdate({_id:productId}, prod, {new: true})
+                this.getAvgR(product, function(prod){
+                    Product.findOneAndUpdate({_id:prod._id}, prod, {new: true})
                     .populate({ path: 'ratings.userId' })
                     .exec(function(err, product) {
                         if (err)
@@ -504,9 +505,10 @@ exports.deleteProduct = function(req, res) {
     }
 };
 
-//PRIVATE
+//Other functions/////
 
-getAvgR = function(product, rating, callback){
+getAvgR = function(product, callback){
+
     var total = 0;
     var ratings=[]
     ratings=product.ratings;
@@ -518,11 +520,49 @@ getAvgR = function(product, rating, callback){
         product.avgRate = (total / ratings.length).toFixed(1);
     } 
 
-    else
+    else{
+        console.log("product", product)
         product.avgRate = 0;
+    }
     //console.log("total: "+total)
     //console.log (product)
     //product.avgRate=(product.totalRate/product.numRates).toFixed(1);
     callback(product)
     //res.status(200).json(product);
+}
+
+exports.delAllUserRates = function(userId, products, callback){
+   for(var i = 0; i < products.length; i++) {
+        var productId=products[i]._id;
+        var ratings=products[i].ratings;
+
+        for(var j = 0; j < ratings.length; j++) {
+            var rating;
+
+            if(ratings[j].userId==userId){
+                rating=ratings[j];
+                j=ratings.length;
+            }
+        }
+
+        Product.findOneAndUpdate({_id:productId}, {$pull: {ratings: rating}}, {new: true}, function(err, product) {
+            if (err)
+                res.status(500).send({message: `Internal server error: ${err}`});
+            else{
+                this.getAvgR(product, function(prod){
+                    Product.findOneAndUpdate({_id:prod._id}, prod, {new: true})
+                    .populate({ path: 'ratings.userId' })
+                    .exec(function(err, product) {
+                        if (err)
+                            console.log("error", err)
+                        /*if (err)
+                            res.status(500).send({message: `Internal server error: ${err}`});
+                        res.status(200).json(product);*/
+                    });
+                });
+            }
+        });
+   }
+
+   callback(err);
 }

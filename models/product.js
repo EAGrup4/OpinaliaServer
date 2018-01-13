@@ -9,7 +9,7 @@ var imageSchema = mongoose.Schema({
 	},{ _id : false });
 
 var ratings = mongoose.Schema({
-	userId:{type:Schema.ObjectId, ref: 'User',required: true, unique: true},
+	userId:{type:Schema.ObjectId, ref: 'User'},
 	title:{type:String,required : true},
 	comment:{type:String,required : true},
 	rate:{type:Number,required : true},

@@ -1,14 +1,16 @@
 var mongoose = require('mongoose');
 var User = mongoose.model('User');
+var Product = mongoose.model('Product');
+var productsController = require('./product')
 var bcrypt = require('bcrypt-nodejs');
 var jwt = require('../services/jwt');
 var cloudinary = require('cloudinary').v2;
 var multer = require('multer');
 var path = require('path');
 var fs = require('fs');
-var nodemailer = require("nodemailer"),
-    async = require('async'),
-    crypto = require('crypto');
+var nodemailer = require("nodemailer");
+var async = require('async');
+var crypto = require('crypto');
 
 //Storage variable, for storin temporal images
 var storage = multer.diskStorage({
@@ -249,19 +251,48 @@ exports.deleteUser = function(req, res) {
     var userId = req.params.userId;
     var tokenInfo=req.user;
 
-
-   if (userId != tokenInfo.sub && !tokenInfo.admin){
-        res.status(403).send({message: 'No privileges'});
-    }
-    
-    User.findByIdAndRemove(userId, function(err, user) {
-        if (err)
+    User.findOne({_id:userId}, function(err,user){
+        if(err)
             res.status(500).send({message: `Internal server error: ${err}`});
-        else
-            res.status(200).json({ message: 'User successfully deleted' });
-    });
-    
+        else if(!user)
+            res.status(504).send({message: `User not exists`});
+        else{
 
+            if (userId != tokenInfo.sub && !tokenInfo.admin){
+                res.status(403).send({message: 'No privileges'});
+            }
+            else{
+
+                Product.find({'ratings.userId':userId}, function(err, products) {
+                    if (err)
+                        res.status(500).send({message: `Internal server error: ${err}`});
+                    else{
+                        productsController.delAllUserRates(userId, products, function(err){
+                            if(err)
+                                res.status(500).send({message: `Internal server error: ${err}`});
+                            else{
+                                User.findByIdAndRemove(userId, function(err, user) {
+                                    if (err)
+                                        res.status(500).send({message: `Internal server error: ${err}`});
+                                    else
+                                        res.status(200).json({ message: 'User successfully deleted' });
+                                });
+                            }
+                        });
+                    }
+                });
+
+
+                /*User.findByIdAndRemove(userId, function(err, user) {
+                    if (err)
+                        res.status(500).send({message: `Internal server error: ${err}`});
+                    else
+                        res.status(200).json({ message: 'User successfully deleted' });
+                });*/
+
+            }
+        }
+    });
 };
 
 exports.postContact = function(req, res) {
