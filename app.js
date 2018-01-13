@@ -15,7 +15,6 @@ var userModel = require('./models/user');
 var userRoutes = require('./routes/user');
 var validator = require('express-validator');
 
-
 var app = express();
 
 //allow cors
@@ -55,8 +54,9 @@ app.use('/users', userRoutes);
 app.use('/products', productRoutes);
 
 //conect the database
+DATABASE=process.env.DATABASE;
 mongoose.Promise = require('bluebird');
-mongoose.connect('mongodb://localhost:27017/opinalia',  { useMongoClient: true });
+mongoose.connect('mongodb://'+DATABASE,  { useMongoClient: true });
 console.log("Database connected");
 
 //error handler
