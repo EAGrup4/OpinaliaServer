@@ -564,5 +564,5 @@ exports.delAllUserRates = function(userId, products, callback){
         });
    }
 
-   callback(err);
+   callback();
 }
