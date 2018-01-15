@@ -131,8 +131,12 @@ exports.registerUser = function(req, res) {
             newUser.imagePublicId="opinalia/users/default.png";
 
             newUser.save(function (err, user) {
-                if (err)
-                    res.status(500).send({message: `Internal server error: ${err}`});
+                if (err){
+                    if(err.code==11000)
+                        res.status(409).send({message: `User already exists`});
+                    else
+                        res.status(500).send({message: `Internal server error: ${err}`});
+                }
                 else{
                     user.token=jwt.createToken(user);
                     res.status(200).json(user);
@@ -177,16 +181,13 @@ exports.loginUserFB=function(req,res){
             res.status(500).send({message: 'Internal server error'});
         }else{
             if(user){
-                console.log(user);
                 user.token=jwt.createToken(user);
                 res.status(200).json(user);
 
             }else{
                 var newUser = new User(req.body);
-                console.log(newUser);
                 newUser.save(function (err, user) {
                     if (err) {
-                        console.log('error');
                         res.status(500).send({message: `Internal server error: ${err}`});
                     }
                     else{
@@ -204,6 +205,14 @@ exports.updateUser = function(req, res) {
     var userId = req.params.userId;
     var update = req.body;
     var tokenInfo=req.user;
+
+    //delete blank files
+    for (var f in update) {
+        
+        if(!update[f]){
+            delete update[f]
+        }
+    }
 
     if(userId != tokenInfo.sub && !tokenInfo.admin){
         res.status(403).send({message: 'No privileges'});
@@ -224,8 +233,12 @@ exports.updateUser = function(req, res) {
                     update.password=hash;
 
                     User.findByIdAndUpdate(userId, update, {new: true}, function(err, user) {
-                        if (err)
-                            res.status(500).send({message: `Internal server error: ${err}`});
+                        if (err){
+                            if(err.code==11000)
+                                res.status(409).send({message: `User already exists`});
+                            else
+                                res.status(500).send({message: `Internal server error: ${err}`});
+                        }
                         else
                             res.status(200).json(user);
                     });
@@ -237,8 +250,12 @@ exports.updateUser = function(req, res) {
             var update = req.body;
 
             User.findByIdAndUpdate(userId, update, {new: true}, function(err, user) {
-                if (err)
-                    res.status(500).send({message: `Internal server error: ${err}`});
+                if (err){
+                    if(err.code==11000)
+                        res.status(409).send({message: `User already exists`});
+                    else
+                        res.status(500).send({message: `Internal server error: ${err}`});
+                }
                 else
                     res.status(200).json(user);
             });
