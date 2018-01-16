@@ -78,7 +78,7 @@ exports.uploadImage = function(req, res) {
                         update.imagePublicId=result.public_id;
                         console.log(result);
 
-                        Product.findOneAndUpdate({_id:userId}, update,{new: true})
+                        User.findOneAndUpdate({_id:userId}, update,{new: true})
                         .exec(function(err, user) {
                             if(err)
                                 res.status(500).send({message: `Internal server error: ${err}`})
