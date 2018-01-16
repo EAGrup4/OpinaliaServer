@@ -358,9 +358,17 @@ exports.addProduct= function(req, res) {
 
 exports.updateProduct = function(req, res) {
     var tokenInfo=req.user;
+    var update=req.body;
 
+    for (var f in update) {
+        
+        if(!update[f]){
+            delete update[f]
+        }
+    }
+    
     if(tokenInfo.admin){
-        Product.findOneAndUpdate({_id:req.params.productId}, req.body, {new: true})
+        Product.findOneAndUpdate({_id:req.params.productId}, update, {new: true})
         .populate({ path: 'ratings.userId' })
         .exec(function(err, product) {
             if (err)
@@ -532,6 +540,7 @@ getAvgR = function(product, callback){
 }
 
 exports.delAllUserRates = function(userId, products, callback){
+    var error;
    for(var i = 0; i < products.length; i++) {
         var productId=products[i]._id;
         var ratings=products[i].ratings;
@@ -546,8 +555,10 @@ exports.delAllUserRates = function(userId, products, callback){
         }
 
         Product.findOneAndUpdate({_id:productId}, {$pull: {ratings: rating}}, {new: true}, function(err, product) {
-            if (err)
-                res.status(500).send({message: `Internal server error: ${err}`});
+            if (err){
+                //res.status(500).send({message: `Internal server error: ${err}`});
+                console.log("error", err)
+            }
             else{
                 this.getAvgR(product, function(prod){
                     Product.findOneAndUpdate({_id:prod._id}, prod, {new: true})
@@ -564,5 +575,5 @@ exports.delAllUserRates = function(userId, products, callback){
         });
    }
 
-   callback(err);
+   callback();
 }
