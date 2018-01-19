@@ -3,6 +3,11 @@ var Schema = mongoose.Schema;
 var userModel = require('./user');
 var User = mongoose.model('User');
 
+var report = mongoose.Schema({
+	userId:{type:Schema.ObjectId, ref: 'User'},
+	comment: String
+});
+
 var imageSchema = mongoose.Schema({
 	src:String,
 	publicId:String
@@ -13,8 +18,12 @@ var ratings = mongoose.Schema({
 	title:{type:String,required : true},
 	comment:{type:String,required : true},
 	rate:{type:Number,required : true},
-	date: { type: Date, default: Date.now }
-	},{ _id : false });
+	date: { type: Date, default: Date.now },
+	numLike:{type:Number, default:0},
+	numDislike:{type:Number,default:0},
+	numReport:{type:Number,default:0},
+	reports:[report]
+	});
 
 var specs = mongoose.Schema({
 	name:String,
@@ -36,3 +45,4 @@ var product = mongoose.Schema({
 module.exports=mongoose.model('Product', product);
 module.exports=mongoose.model('Rating', ratings);
 module.exports=mongoose.model('Image', imageSchema);
+module.exports=mongoose.model('Report', report);

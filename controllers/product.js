@@ -387,8 +387,8 @@ exports.addRating = function(req, res) {
     rating.userId=userId;
     console.log(rating)
     
-    Product.findOne({_id:req.params.productId, 'ratings.userId':rating.userId}).
-    exec(function(err, product) {
+    Product.findOne({_id:req.params.productId, 'ratings.userId':rating.userId})
+    .exec(function(err, product) {
         if (err)
             res.status(500).send({message: `Internal server error: ${err}`});
 
@@ -399,7 +399,7 @@ exports.addRating = function(req, res) {
 
                 else{           
 
-                    this.getAvgR(product, function(prod){
+                    this.getAvgRate(product, function(prod){
                         delete prod._id;
                         Product.findOneAndUpdate({_id:prod._id}, prod, {new: true})
                         .populate({ path: 'ratings.userId' })
@@ -412,10 +412,12 @@ exports.addRating = function(req, res) {
                 }
             })
         }
-        else
-            res.status(409).send({message: `Already rated`});
+        else{
+            console.log(product)
+           res.status(409).send({message: `Already rated`});
             //res.status(200).json(product);
-        });
+        }
+    });
 };
 
 exports.deleteRating = function(req, res) {   
@@ -444,6 +446,65 @@ exports.deleteRating = function(req, res) {
     else
         res.status(403).send({message: 'No privileges'});
 };
+
+exports.likeRating = function(req,res){
+    var rating=req.body
+    var productId=req.params.productId;
+    /*userId=req.user.sub;
+    rating.userId=userId;*/
+    console.log(rating)
+    
+    Product.findOneAndUpdate({_id:productId, 'ratings.userId':rating.userId}, 
+        {$inc: {'ratings.$.numLike': 1}}, {new: true}, function(err, product) {
+        if (err)
+            res.status(500).send({message: `Internal server error: ${err}`}); 
+
+        else{           
+            res.status(200).send(product)
+
+        }
+    })
+}
+
+exports.reportRating = function(req,res){
+    var productId=req.params.productId;
+    var rating=req.params.ratingUserId;
+    var report=req.body;
+    var reportUser=req.user.sub;
+    report.userId=reportUser;
+    console.log(report.userId)
+
+    /*Product.findOne({_id:req.params.productId}, {'ratings.$.userId':rating, 
+       'ratings.$.reports.userId':report.userId})
+    .exec(function(err, product) {
+        console.log(product)
+        if (err)
+            res.status(500).send({message: `Internal server error: ${err}`});
+
+
+
+
+        else if (!product){*/
+           Product.findOneAndUpdate({_id:productId,'ratings.userId':rating}, 
+                {$addToSet: {'ratings.$.reports': report},$inc: {'ratings.$.numReport': 1}}, 
+                {new: true}, function(err, product) {
+
+                if (err)
+                    res.status(500).send({message: `Internal server error: ${err}`}); 
+
+                else{           
+
+                    res.status(200).send(product);
+                    
+                }
+            })
+        /*}
+        else{
+           //res.status(409).send({message: `Already reported`});
+            res.status(200).json(product);
+        }
+    });*/
+}
 
 exports.getRatingsBest = function(req, res) {
     Product.findOne({_id:req.params.productId})
@@ -515,7 +576,7 @@ exports.deleteProduct = function(req, res) {
 
 //Other functions/////
 
-getAvgR = function(product, callback){
+getAvgRate = function(product, callback){
 
     var total = 0;
     var ratings=[]

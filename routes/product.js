@@ -60,7 +60,11 @@ router.post('/:productId', md_auth.ensureAuth, products.updateProduct);
 //Add rating to a product
 router.post('/rating/:productId', md_auth.ensureAuth, products.addRating);
 //Delete rating from product
-router.post('/pullRating/:productId', md_auth.ensureAuth, products.deleteRating);
+router.post('/rating/pull/:productId', md_auth.ensureAuth, products.deleteRating);
+//Like rating from product
+router.post('/rating/like/:productId', md_auth.ensureAuth, products.likeRating);
+//Report rating from product
+router.post('/rating/report/:productId/:ratingUserId', md_auth.ensureAuth, products.reportRating);
 //Upload an image to product
 router.post('/image/add/:productId', md_auth.ensureAuth, products.uploadImage);
 
