@@ -11,6 +11,7 @@ var fs = require('fs');
 var nodemailer = require("nodemailer");
 var async = require('async');
 var crypto = require('crypto');
+var request = require('request');
 
 //Storage variable, for storin temporal images
 var storage = multer.diskStorage({
@@ -173,7 +174,7 @@ exports.loginUser=function(req,res){
 };
 
 exports.loginUserFB=function(req,res){
-    var params = req.body;
+    var params = req.body.userr;
     var email = params.email;
 
     User.findOne({email: email}, function(err, user) {
@@ -185,10 +186,16 @@ exports.loginUserFB=function(req,res){
                 res.status(200).json(user);
 
             }else{
-                var newUser = new User(req.body);
+                var newUser = new User(req.body.userr);
+                delete newUser.admin;
+                newUser.profileImage="http://res.cloudinary.com/grup04ea/image/upload/v1515145634/opinalia/users/default.png";
+                newUser.imagePublicId="opinalia/users/default.png";
                 newUser.save(function (err, user) {
-                    if (err) {
-                        res.status(500).send({message: `Internal server error: ${err}`});
+                    if (err){
+                        if(err.code==11000)
+                            res.status(409).send({message: `User already exists`});
+                        else
+                            res.status(500).send({message: `Internal server error: ${err}`});
                     }
                     else{
                         user.token=jwt.createToken(user);
