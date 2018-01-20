@@ -8,6 +8,10 @@ var report = mongoose.Schema({
 	comment: String
 });
 
+var likeSchema = mongoose.Schema({
+	userId:{type:Schema.ObjectId, ref: 'User'}
+});
+
 var imageSchema = mongoose.Schema({
 	src:String,
 	publicId:String
@@ -22,7 +26,9 @@ var ratings = mongoose.Schema({
 	numLike:{type:Number, default:0},
 	numDislike:{type:Number,default:0},
 	numReport:{type:Number,default:0},
-	reports:[report]
+	reports:[report],
+	likes:[likeSchema],
+	dislikes:[likeSchema],
 	});
 
 var specs = mongoose.Schema({
@@ -46,3 +52,4 @@ module.exports=mongoose.model('Product', product);
 module.exports=mongoose.model('Rating', ratings);
 module.exports=mongoose.model('Image', imageSchema);
 module.exports=mongoose.model('Report', report);
+module.exports=mongoose.model('Like', likeSchema);
