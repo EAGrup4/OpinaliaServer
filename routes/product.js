@@ -64,7 +64,7 @@ router.post('/rating/pull/:productId', md_auth.ensureAuth, products.deleteRating
 //Like rating from product
 router.post('/rating/like/:productId', md_auth.ensureAuth, products.likeRating);
 //Report rating from product
-router.post('/rating/report/:productId/:ratingUserId', md_auth.ensureAuth, products.reportRating);
+router.post('/rating/report/:productId/:ratingId', md_auth.ensureAuth, products.reportRating);
 //Upload an image to product
 router.post('/image/add/:productId', md_auth.ensureAuth, products.uploadImage);
 

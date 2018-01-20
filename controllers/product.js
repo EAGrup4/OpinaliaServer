@@ -68,7 +68,7 @@ exports.uploadImage = function(req, res) {
 exports.listAllProducts = function(req, res) {
     Product.find()
     //.populate({ path: 'ratings.userId' })
-    .select({"ratings":0})
+    //.select({"ratings":0})////////////////////////////////////////////////////////////////////////////
     .exec(function(err, products) {
         if (err)
             res.status(500).send({message: `Internal server error: ${err}`});
@@ -385,7 +385,6 @@ exports.addRating = function(req, res) {
     var productId=req.params.productId;
     userId=req.user.sub;
     rating.userId=userId;
-    console.log(rating)
     
     Product.findOne({_id:req.params.productId, 'ratings.userId':rating.userId})
     .exec(function(err, product) {
@@ -468,42 +467,51 @@ exports.likeRating = function(req,res){
 
 exports.reportRating = function(req,res){
     var productId=req.params.productId;
-    var rating=req.params.ratingUserId;
+    var ratingId=req.params.ratingId;
     var report=req.body;
     var reportUser=req.user.sub;
     report.userId=reportUser;
     console.log(report.userId)
 
-    /*Product.findOne({_id:req.params.productId}, {'ratings.$.userId':rating, 
-       'ratings.$.reports.userId':report.userId})
+    Product.findOne({_id:req.params.productId, 'ratings._id':ratingId}, 
+     {'ratings.$.reports.userId':report.userId})
     .exec(function(err, product) {
         console.log(product)
         if (err)
             res.status(500).send({message: `Internal server error: ${err}`});
-
-
-
-
-        else if (!product){*/
-           Product.findOneAndUpdate({_id:productId,'ratings.userId':rating}, 
-                {$addToSet: {'ratings.$.reports': report},$inc: {'ratings.$.numReport': 1}}, 
-                {new: true}, function(err, product) {
-
-                if (err)
-                    res.status(500).send({message: `Internal server error: ${err}`}); 
-
-                else{           
-
-                    res.status(200).send(product);
-                    
-                }
-            })
-        /*}
         else{
+
+            var reports=product.ratings[0].reports;
+            var reported=false;
+
+            for (var i=0; i<reports.length; i++){
+                if (reports[i].userId==report.userId){
+                    i=reports.length;
+                    reported=true;
+                }
+            }
+
+            if(!reported){
+                Product.findOneAndUpdate({_id:productId,'ratings._id':ratingId}, 
+                    {$addToSet: {'ratings.$.reports': report},$inc: {'ratings.$.numReport': 1}}, 
+                    {new: true}, function(err, product) {
+
+                    if (err)
+                        res.status(500).send({message: `Internal server error: ${err}`}); 
+
+                    else{           
+
+                        res.status(200).send(product);
+
+                    }
+                })
+            }
            //res.status(409).send({message: `Already reported`});
-            res.status(200).json(product);
+           else{
+            res.status(409).send({message: `Already reported`});
         }
-    });*/
+    }
+});
 }
 
 exports.getRatingsBest = function(req, res) {
