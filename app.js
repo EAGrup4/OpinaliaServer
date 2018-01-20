@@ -58,6 +58,7 @@ DATABASE=process.env.DATABASE;
 mongoose.Promise = require('bluebird');
 mongoose.connect('mongodb://'+DATABASE,  { useMongoClient: true });
 console.log("Database connected");
+console.log('mongodb://'+DATABASE);
 
 //error handler
 /*app.use(function(req, res, next) {

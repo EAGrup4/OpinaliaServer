@@ -19,7 +19,7 @@ router.get('/name/:name',md_auth.ensureAuth, users.findByName);
 router.post('/register', users.registerUser);
 //Login a user
 router.post('/login', users.loginUser);
-router.post('/loginFB', users.loginUserFB);
+router.post('/loginFB', md_auth.ensureAuthFB, users.loginUserFB);
 //Contact
 router.post('/contact', users.postContact);
 //Forgot password
