@@ -68,7 +68,7 @@ exports.uploadImage = function(req, res) {
 exports.listAllProducts = function(req, res) {
     Product.find()
     //.populate({ path: 'ratings.userId' })
-    //.select({"ratings":0})////////////////////////////////////////////////////////////////////////////
+    .select({"ratings":0})
     .exec(function(err, products) {
         if (err)
             res.status(500).send({message: `Internal server error: ${err}`});
