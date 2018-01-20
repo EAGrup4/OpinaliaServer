@@ -2,6 +2,7 @@ var mongoose = require('mongoose');
 var Product = mongoose.model('Product');
 var Rating = mongoose.model('Rating');
 var Image = mongoose.model('Image');
+var Like = mongoose.model('Like');
 var jwt = require('../services/jwt');
 var cloudinary = require('cloudinary').v2;
 var multer = require('multer');
@@ -68,7 +69,7 @@ exports.uploadImage = function(req, res) {
 exports.listAllProducts = function(req, res) {
     Product.find()
     //.populate({ path: 'ratings.userId' })
-    //.select({"ratings":0})////////////////////////////////////////////////////////////////////////////
+    //.select({"ratings":0,})////////////////////////////////////////////////////////////////////////////
     .exec(function(err, products) {
         if (err)
             res.status(500).send({message: `Internal server error: ${err}`});
@@ -447,22 +448,125 @@ exports.deleteRating = function(req, res) {
 };
 
 exports.likeRating = function(req,res){
-    var rating=req.body
     var productId=req.params.productId;
-    /*userId=req.user.sub;
-    rating.userId=userId;*/
-    console.log(rating)
-    
-    Product.findOneAndUpdate({_id:productId, 'ratings.userId':rating.userId}, 
-        {$inc: {'ratings.$.numLike': 1}}, {new: true}, function(err, product) {
+    var ratingId=req.params.ratingId;
+    var userId=req.user.sub;
+    var like={};
+    like.userId=userId;
+
+    Product.findOne({_id:req.params.productId, 'ratings._id':ratingId}, 
+       {'ratings.$.likes.userId':userId})
+    .exec(function(err, product) {
         if (err)
-            res.status(500).send({message: `Internal server error: ${err}`}); 
+            res.status(500).send({message: `Internal server error: ${err}`});
+        else{
 
-        else{           
-            res.status(200).send(product)
+            var likes=product.ratings[0].likes;
+            var liked=false;
+            var inc=-1;
 
+            for (var i=0; i<likes.length; i++){
+                if (likes[i].userId==like.userId){
+                    i=likes.length;
+                    liked=true;
+                }
+            }
+
+            if(product.ratings[0].numDislike==0){
+                inc=0
+            }
+
+
+            if(!liked){
+                Product.findOneAndUpdate({_id:productId,'ratings._id':ratingId}, 
+                    {
+                        $addToSet: {'ratings.$.likes': like},
+                        $pull: {'ratings.$.dislikes': like},
+                        $inc: {
+                            'ratings.$.numLike': 1,
+                            'ratings.$.numDislike': inc
+                        }
+                    }, 
+                    {new: true}, function(err, product) {
+
+                        if (err)
+                            res.status(500).send({message: `Internal server error: ${err}`}); 
+
+                        else{           
+
+                            res.status(200).send(product);
+
+                        }
+                    })
+                    //res.status(200).send(product);
+            }
+           //res.status(409).send({message: `Already reported`});
+           else{
+            res.status(409).send({message: `Already liked`});
+            //res.status(409).send(likes);
+            }
         }
-    })
+    });
+}
+
+exports.dislikeRating = function(req,res){
+    var productId=req.params.productId;
+    var ratingId=req.params.ratingId;
+    var userId=req.user.sub;
+    var like={};
+    like.userId=userId;
+
+    Product.findOne({_id:req.params.productId, 'ratings._id':ratingId}, 
+       {'ratings.$.dislikes.userId':userId})
+    .exec(function(err, product) {
+        console.log(product)
+        if (err)
+            res.status(500).send({message: `Internal server error: ${err}`});
+        else{
+
+            var dislikes=product.ratings[0].dislikes;
+            var liked=false;
+            var inc=-1;
+
+            for (var i=0; i<dislikes.length; i++){
+                if (dislikes[i].userId==like.userId){
+                    i=dislikes.length;
+                    liked=true;
+                }
+            }
+
+            if(product.ratings[0].numLike==0){
+                inc=0
+            }
+
+            if(!liked){
+                Product.findOneAndUpdate({_id:productId,'ratings._id':ratingId}, 
+                    {
+                        $addToSet: {'ratings.$.dislikes': like},
+                        $pull: {'ratings.$.likes': like},
+                        $inc: {
+                            'ratings.$.numLike': inc,
+                            'ratings.$.numDislike': 1
+                        }
+                    }, 
+                    {new: true}, function(err, product) {
+
+                        if (err)
+                            res.status(500).send({message: `Internal server error: ${err}`}); 
+
+                        else{           
+
+                            res.status(200).send(product);
+
+                        }
+                    })
+            }
+           //res.status(409).send({message: `Already reported`});
+           else{
+            res.status(409).send({message: `Already disliked`});
+            }
+        }
+    });
 }
 
 exports.reportRating = function(req,res){
@@ -474,7 +578,7 @@ exports.reportRating = function(req,res){
     console.log(report.userId)
 
     Product.findOne({_id:req.params.productId, 'ratings._id':ratingId}, 
-     {'ratings.$.reports.userId':report.userId})
+       {'ratings.$.reports.userId':report.userId})
     .exec(function(err, product) {
         console.log(product)
         if (err)
@@ -496,22 +600,22 @@ exports.reportRating = function(req,res){
                     {$addToSet: {'ratings.$.reports': report},$inc: {'ratings.$.numReport': 1}}, 
                     {new: true}, function(err, product) {
 
-                    if (err)
-                        res.status(500).send({message: `Internal server error: ${err}`}); 
+                        if (err)
+                            res.status(500).send({message: `Internal server error: ${err}`}); 
 
-                    else{           
+                        else{           
 
-                        res.status(200).send(product);
+                            res.status(200).send(product);
 
-                    }
-                })
+                        }
+                    })
             }
            //res.status(409).send({message: `Already reported`});
            else{
             res.status(409).send({message: `Already reported`});
+            }
         }
-    }
-});
+    });
 }
 
 exports.getRatingsBest = function(req, res) {
@@ -577,9 +681,12 @@ exports.deleteProduct = function(req, res) {
         Product.findByIdAndRemove(req.params.productId, function(err, product) {
             if (err)
                 res.status(500).send({message: `Internal server error: ${err}`});
-            res.status(200).json({ message: 'Product successfully deleted' });
+            else
+                res.status(200).json({ message: 'Product successfully deleted' });
         });
     }
+    else 
+        res.status(403).send({message: 'No privileges'});
 };
 
 //Other functions/////
