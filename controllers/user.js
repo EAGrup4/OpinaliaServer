@@ -127,6 +127,7 @@ exports.registerUser = function(req, res) {
             var newUser = new User(req.body);
             newUser.password = hash;
 
+            delete newUser.token;
             delete newUser.admin;
             newUser.profileImage="http://res.cloudinary.com/grup04ea/image/upload/v1515145634/opinalia/users/default.png";
             newUser.imagePublicId="opinalia/users/default.png";
