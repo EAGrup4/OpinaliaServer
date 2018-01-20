@@ -343,6 +343,8 @@ exports.addProduct= function(req, res) {
     var tokenInfo=req.user;
 
     if (tokenInfo.admin){
+        newProduct.images.src='http://res.cloudinary.com/grup04ea/image/upload/v1514675870/opinalia/products/ry0damkuxgrmext71l35.png';
+        newProduct.images.publicId='opinalia/products/ry0damkuxgrmext71l35.png';
         newProduct.save(function(err, product) {
             if (err)
                 res.status(500).send({message: `Internal server error: ${err}`});
