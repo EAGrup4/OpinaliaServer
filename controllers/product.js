@@ -458,13 +458,16 @@ exports.likeRating = function(req,res){
 
     Product.findOne({_id:req.params.productId, 'ratings._id':ratingId}, 
        {'ratings.$.likes.userId':userId})
+    .populate({ path: 'ratings.userId' })
     .exec(function(err, product) {
         if (err)
             res.status(500).send({message: `Internal server error: ${err}`});
         else{
 
             var likes=product.ratings[0].likes;
+            var dislikes=product.ratings[0].dislikes
             var liked=false;
+            var disliked=false;
             var inc=-1;
 
             for (var i=0; i<likes.length; i++){
@@ -474,10 +477,18 @@ exports.likeRating = function(req,res){
                 }
             }
 
-            if(product.ratings[0].numDislike==0){
-                inc=0
-            }
+            if(!liked){
+                for (var i=0; i<dislikes.length; i++){
+                    if (dislikes[i].userId==like.userId){
+                        i=dislikes.length;
+                        disliked=true;
+                    }
+                }
 
+                if(product.ratings[0].numDislike==0 || !disliked){
+                    inc=0
+                }
+            }
 
             if(!liked){
                 Product.findOneAndUpdate({_id:productId,'ratings._id':ratingId}, 
@@ -520,25 +531,37 @@ exports.dislikeRating = function(req,res){
 
     Product.findOne({_id:req.params.productId, 'ratings._id':ratingId}, 
        {'ratings.$.dislikes.userId':userId})
+    .populate({ path: 'ratings.userId' })
     .exec(function(err, product) {
         console.log(product)
         if (err)
             res.status(500).send({message: `Internal server error: ${err}`});
         else{
 
-            var dislikes=product.ratings[0].dislikes;
+            var likes=product.ratings[0].likes;
+            var dislikes=product.ratings[0].dislikes
             var liked=false;
+            var disliked=false;
             var inc=-1;
 
             for (var i=0; i<dislikes.length; i++){
                 if (dislikes[i].userId==like.userId){
                     i=dislikes.length;
-                    liked=true;
+                    disliked=true;
                 }
             }
 
-            if(product.ratings[0].numLike==0){
-                inc=0
+            if(!disliked){
+                for (var i=0; i<likes.length; i++){
+                    if (likes[i].userId==like.userId){
+                        i=likes.length;
+                        liked=true;
+                    }
+                }
+
+                if(product.ratings[0].numLike==0 || !liked){
+                    inc=0
+                }
             }
 
             if(!liked){
