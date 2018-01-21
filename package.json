@@ -38,7 +38,8 @@
     "nodemailer": "4.4.1",
     "validator": "9.2.0",
     "jade": "1.11.0",
-    "request": "2.83.0"
+    "request": "2.83.0",
+    "bad-words": "1.6.1"
   },
   "devDependencies": {
     "nodemon": "^1.12.1"

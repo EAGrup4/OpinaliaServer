@@ -8,6 +8,11 @@ var cloudinary = require('cloudinary').v2;
 var multer = require('multer');
 var path = require('path');
 var fs = require('fs');
+var Filter = require('bad-words');
+var filter = new Filter();
+filter.addWords(['gilipollas', 'perra', 'ñordo', 'cacota', 'caca', 'GILIPOLLAS', 'Gilipollas', 'Puta', 'PUTA','puta',
+                'anormal','Anormal','Mierda','mierda','Subnormal','subnormal','SUBNORMAL','Zorra','zorra','ZORRA']);
+
 
 //Storage variable, for storin temporal images
 var storage = multer.diskStorage({
@@ -404,7 +409,7 @@ exports.addSpec = function(req, res) {
 };
 
 exports.addRating = function(req, res) {
-    var rating=req.body
+    var rating=req.body;
     var productId=req.params.productId;
     userId=req.user.sub;
     rating.userId=userId;
@@ -415,6 +420,8 @@ exports.addRating = function(req, res) {
             res.status(500).send({message: `Internal server error: ${err}`});
 
         else if (!product){
+            rating.title = filter.clean(rating.title);
+            rating.comment = filter.clean(rating.comment);
             Product.findOneAndUpdate({_id:productId}, {$addToSet: {ratings: rating}}, {new: true}, function(err, product) {
                 if (err)
                     res.status(500).send({message: `Internal server error: ${err}`}); 
