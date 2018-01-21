@@ -11,7 +11,7 @@ var fs = require('fs');
 var Filter = require('bad-words');
 var filter = new Filter();
 filter.addWords(['gilipollas', 'perra', 'ñordo', 'cacota', 'caca', 'GILIPOLLAS', 'Gilipollas', 'Puta', 'PUTA','puta',
-                'anormal','Anormal','Mierda','mierda','Subnormal','subnormal','SUBNORMAL','Zorra','zorra','ZORRA']);
+                'anormal','Anormal','Mierda','mierda','Sub']);
 
 
 //Storage variable, for storin temporal images
@@ -349,11 +349,8 @@ exports.addProduct= function(req, res) {
     var tokenInfo=req.user;
 
     if (tokenInfo.admin){
-        var image=new Image();
-        image.src='http://res.cloudinary.com/grup04ea/image/upload/v1514675870/opinalia/products/ry0damkuxgrmext71l35.png';
-        image.publicId='opinalia/products/ry0damkuxgrmext71l35.png';
-        newProduct.images=image;
-
+        newProduct.images.src='http://res.cloudinary.com/grup04ea/image/upload/v1514675870/opinalia/products/ry0damkuxgrmext71l35.png';
+        newProduct.images.publicId='opinalia/products/ry0damkuxgrmext71l35.png';
         newProduct.save(function(err, product) {
             if (err)
                 res.status(500).send({message: `Internal server error: ${err}`});
@@ -371,12 +368,12 @@ exports.updateProduct = function(req, res) {
     var update=req.body;
 
     for (var f in update) {
-        
+
         if(!update[f]){
             delete update[f]
         }
     }
-    
+
     if(tokenInfo.admin){
         Product.findOneAndUpdate({_id:req.params.productId}, update, {new: true})
         .populate('ratings.userId', { password:0, admin:false})
@@ -394,6 +391,7 @@ exports.addSpec = function(req, res) {
     var spec=req.body
     var productId=req.params.productId;
     tokenInfo=req.user;
+    console.log(spec)
 
     if (!tokenInfo.admin)
         res.status(403).send({message: 'No privileges'});
@@ -401,9 +399,9 @@ exports.addSpec = function(req, res) {
     else{
         Product.findOneAndUpdate({_id:productId}, {$addToSet: {specifications: spec}}, {new: true}, function(err, product) {
             if (err)
-                res.status(500).send({message: `Internal server error: ${err}`}); 
+                res.status(500).send({message: `Internal server error: ${err}`});
 
-            else{  
+            else{
                 res.status(200).json(product);
             }
         })
@@ -415,7 +413,7 @@ exports.addRating = function(req, res) {
     var productId=req.params.productId;
     userId=req.user.sub;
     rating.userId=userId;
-    
+
     Product.findOne({_id:req.params.productId, 'ratings.userId':rating.userId})
     .exec(function(err, product) {
         if (err)
@@ -426,9 +424,9 @@ exports.addRating = function(req, res) {
             rating.comment = filter.clean(rating.comment);
             Product.findOneAndUpdate({_id:productId}, {$addToSet: {ratings: rating}}, {new: true}, function(err, product) {
                 if (err)
-                    res.status(500).send({message: `Internal server error: ${err}`}); 
+                    res.status(500).send({message: `Internal server error: ${err}`});
 
-                else{           
+                else{
 
                     this.getAvgRate(product, function(prod){
                         delete prod._id;
@@ -451,7 +449,7 @@ exports.addRating = function(req, res) {
     });
 };
 
-exports.deleteRating = function(req, res) {   
+exports.deleteRating = function(req, res) {
     var rating=req.body
     var userId=rating.UserId;
     var productId=req.params.productId;
@@ -485,9 +483,9 @@ exports.likeRating = function(req,res){
     var like={};
     like.userId=userId;
 
-    Product.findOne({_id:req.params.productId, 'ratings._id':ratingId}, 
+    Product.findOne({_id:req.params.productId, 'ratings._id':ratingId},
        {'ratings.$.likes.userId':userId})
-
+    .populate('ratings.userId', { password:0, admin:false})
     .exec(function(err, product) {
         if (err)
             res.status(500).send({message: `Internal server error: ${err}`});
@@ -520,7 +518,7 @@ exports.likeRating = function(req,res){
             }
 
             if(!liked){
-                Product.findOneAndUpdate({_id:productId,'ratings._id':ratingId}, 
+                Product.findOneAndUpdate({_id:productId,'ratings._id':ratingId},
                     {
                         $addToSet: {'ratings.$.likes': like},
                         $pull: {'ratings.$.dislikes': like},
@@ -528,15 +526,13 @@ exports.likeRating = function(req,res){
                             'ratings.$.numLike': 1,
                             'ratings.$.numDislike': inc
                         }
-                    }, 
-                    {new: true})
-                    .populate('ratings.userId', { password:0, admin:false})
-                    .exec(function(err, product) {
+                    },
+                    {new: true}, function(err, product) {
 
                         if (err)
-                            res.status(500).send({message: `Internal server error: ${err}`}); 
+                            res.status(500).send({message: `Internal server error: ${err}`});
 
-                        else{           
+                        else{
 
                             res.status(200).send(product);
 
@@ -560,7 +556,7 @@ exports.dislikeRating = function(req,res){
     var like={};
     like.userId=userId;
 
-    Product.findOne({_id:req.params.productId, 'ratings._id':ratingId}, 
+    Product.findOne({_id:req.params.productId, 'ratings._id':ratingId},
        {'ratings.$.dislikes.userId':userId})
     .populate('ratings.userId', { password:0, admin:false})
     .exec(function(err, product) {
@@ -605,10 +601,8 @@ exports.dislikeRating = function(req,res){
                             'ratings.$.numLike': inc,
                             'ratings.$.numDislike': 1
                         }
-                    }, 
-                    {new: true})
-                    .populate('ratings.userId', { password:0, admin:false})
-                    .exec(function(err, product) {
+                    },
+                    {new: true}, function(err, product) {
 
                         if (err)
                             res.status(500).send({message: `Internal server error: ${err}`}); 

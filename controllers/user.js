@@ -230,8 +230,6 @@ exports.loginUserFB=function(req,res){
             }else{
                 var newUser = new User(req.body.userr);
                 delete newUser.admin;
-                newUser.profileImage="http://res.cloudinary.com/grup04ea/image/upload/v1515145634/opinalia/users/default.png";
-                newUser.imagePublicId="opinalia/users/default.png";
                 newUser.save(function (err, user) {
                     if (err){
                         if(err.code==11000)
