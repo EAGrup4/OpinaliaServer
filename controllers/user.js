@@ -376,12 +376,14 @@ exports.postContact = function(req, res) {
         var body = req.body.message;
         var to = process.env.EMAIL_USER;
         var subject = 'Contact Form | Opinalia (' + name + ')';
+        var html ='<b>Hola. <strong>'+name+'</strong>, con el email: ' +from+ ' te ha enciado el siguiente mensaje: <b>"'+body+'"</b></p>';
 
         var mailOptions = {
             to: to,
             from: from,
             subject: subject,
-            text: body
+            text: body,
+            html: html
         };
 
         smtpTransport.sendMail(mailOptions, function (err, response) {
