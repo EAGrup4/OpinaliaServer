@@ -344,8 +344,11 @@ exports.addProduct= function(req, res) {
     var tokenInfo=req.user;
 
     if (tokenInfo.admin){
-        newProduct.images.src='http://res.cloudinary.com/grup04ea/image/upload/v1514675870/opinalia/products/ry0damkuxgrmext71l35.png';
-        newProduct.images.publicId='opinalia/products/ry0damkuxgrmext71l35.png';
+        var image=new Image();
+        image.src='http://res.cloudinary.com/grup04ea/image/upload/v1514675870/opinalia/products/ry0damkuxgrmext71l35.png';
+        image.publicId='opinalia/products/ry0damkuxgrmext71l35.png';
+        newProduct.images=image;
+
         newProduct.save(function(err, product) {
             if (err)
                 res.status(500).send({message: `Internal server error: ${err}`});
@@ -386,7 +389,6 @@ exports.addSpec = function(req, res) {
     var spec=req.body
     var productId=req.params.productId;
     tokenInfo=req.user;
-    console.log(spec)
 
     if (!tokenInfo.admin)
         res.status(403).send({message: 'No privileges'});
