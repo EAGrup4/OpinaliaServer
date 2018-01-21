@@ -349,8 +349,11 @@ exports.addProduct= function(req, res) {
     var tokenInfo=req.user;
 
     if (tokenInfo.admin){
-        newProduct.images.src='http://res.cloudinary.com/grup04ea/image/upload/v1514675870/opinalia/products/ry0damkuxgrmext71l35.png';
-        newProduct.images.publicId='opinalia/products/ry0damkuxgrmext71l35.png';
+        var image=new Image();
+        image.src='http://res.cloudinary.com/grup04ea/image/upload/v1514675870/opinalia/products/ry0damkuxgrmext71l35.png';
+        image.publicId='opinalia/products/ry0damkuxgrmext71l35.png';
+        newProduct.images=image;
+
         newProduct.save(function(err, product) {
             if (err)
                 res.status(500).send({message: `Internal server error: ${err}`});
@@ -391,7 +394,6 @@ exports.addSpec = function(req, res) {
     var spec=req.body
     var productId=req.params.productId;
     tokenInfo=req.user;
-    console.log(spec)
 
     if (!tokenInfo.admin)
         res.status(403).send({message: 'No privileges'});
@@ -485,7 +487,7 @@ exports.likeRating = function(req,res){
 
     Product.findOne({_id:req.params.productId, 'ratings._id':ratingId}, 
        {'ratings.$.likes.userId':userId})
-    .populate('ratings.userId', { password:0, admin:false})
+
     .exec(function(err, product) {
         if (err)
             res.status(500).send({message: `Internal server error: ${err}`});
@@ -527,7 +529,9 @@ exports.likeRating = function(req,res){
                             'ratings.$.numDislike': inc
                         }
                     }, 
-                    {new: true}, function(err, product) {
+                    {new: true})
+                    .populate('ratings.userId', { password:0, admin:false})
+                    .exec(function(err, product) {
 
                         if (err)
                             res.status(500).send({message: `Internal server error: ${err}`}); 
@@ -593,7 +597,7 @@ exports.dislikeRating = function(req,res){
             }
 
             if(!disliked){
-                Product.findOneAndUpdate({_id:productId,'ratings._id':ratingId}, 
+                Product.findOneAndUpdate({_id:productId,'ratings._id':ratingId},
                     {
                         $addToSet: {'ratings.$.dislikes': like},
                         $pull: {'ratings.$.likes': like},
@@ -602,7 +606,9 @@ exports.dislikeRating = function(req,res){
                             'ratings.$.numDislike': 1
                         }
                     }, 
-                    {new: true}, function(err, product) {
+                    {new: true})
+                    .populate('ratings.userId', { password:0, admin:false})
+                    .exec(function(err, product) {
 
                         if (err)
                             res.status(500).send({message: `Internal server error: ${err}`}); 
