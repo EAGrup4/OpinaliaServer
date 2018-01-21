@@ -101,17 +101,58 @@ exports.uploadImage = function(req, res) {
     }
 };
 
-exports.findByEmail = function(req, res) {
-    User.find({email:req.params.email}, function(err, user) {
-        if (err)
-            res.status(500).send({message: `Internal server error: ${err}`});
-        else
-            res.status(200).json(user);
-    });
+/*exports.findByEmail = function(req, res) {
+    var tokenInfo=req.user;
+    var userId = req.params.userId;
+
+    if(userId != tokenInfo.sub && !tokenInfo.admin){
+        User.find({email:req.params.email}, function(err, user) {
+            if (err)
+                res.status(500).send({message: `Internal server error: ${err}`});
+            else
+                res.status(200).json(user);
+        });
+    }
 };
 
 exports.findByName = function(req, res) {
-    User.find({name:req.params.name}, function(err, user) {
+    var tokenInfo=req.user;
+    var userId = req.params.userId;
+
+    if(userId != tokenInfo.sub && !tokenInfo.admin){
+
+        User.find({name:req.params.name}, function(err, user) {
+            if (err)
+                res.status(500).send({message: `Internal server error: ${err}`});
+            else
+                res.status(200).json(user);
+        });
+    }
+};*/
+
+exports.findById = function(req, res) {
+    var tokenInfo=req.user;
+    var userId = req.params.userId;
+
+    if(userId != tokenInfo.sub && !tokenInfo.admin){
+        res.status(403).send({message: 'No privileges'});
+    }
+    else{
+        User.find({_id:userId}, function(err, user) {
+            if (err)
+                res.status(500).send({message: `Internal server error: ${err}`});
+            else
+                res.status(200).json(user);
+        });
+    }
+};
+
+exports.getProfile = function(req, res) {
+    var userId = req.params.userId;
+
+    User.find({_id:userId})
+    .select({password:0, admin:0})
+    .exec( function(err, user) {
         if (err)
             res.status(500).send({message: `Internal server error: ${err}`});
         else
