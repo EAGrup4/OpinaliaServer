@@ -68,8 +68,9 @@ exports.uploadImage = function(req, res) {
 
 exports.listAllProducts = function(req, res) {
     Product.find()
-    //.populate({ path: 'ratings.userId' })
+    //.populate('ratings.userId', {_id:0, password:0, admin:false})
     .select({"ratings":0})
+    //.select({'ratings.userId._id':0})
     .exec(function(err, products) {
         if (err)
             res.status(500).send({message: `Internal server error: ${err}`});
@@ -219,7 +220,7 @@ exports.findByCompany = function(req, res) {
 
 exports.findById = function(req, res) {
     Product.findOne({_id:req.params.productId})
-    .populate({ path: 'ratings.userId' })
+    .populate('ratings.userId', {_id:0, password:0, admin:false})
     .exec(function(err, product) {
         if (err)
             res.status(500).send({message: `Internal server error: ${err}`});
@@ -370,7 +371,7 @@ exports.updateProduct = function(req, res) {
     
     if(tokenInfo.admin){
         Product.findOneAndUpdate({_id:req.params.productId}, update, {new: true})
-        .populate({ path: 'ratings.userId' })
+        .populate('ratings.userId', {_id:0, password:0, admin:false})
         .exec(function(err, product) {
             if (err)
                 res.status(500).send({message: `Internal server error: ${err}`});
@@ -433,7 +434,7 @@ exports.deleteRating = function(req, res) {
             else{
                 this.getAvgR(product, function(prod){
                     Product.findOneAndUpdate({_id:prod._id}, prod, {new: true})
-                    .populate({ path: 'ratings.userId' })
+                    .populate('ratings.userId', {_id:0, password:0, admin:false})
                     .exec(function(err, product) {
                         if (err)
                             res.status(500).send({message: `Internal server error: ${err}`});
@@ -456,7 +457,7 @@ exports.likeRating = function(req,res){
 
     Product.findOne({_id:req.params.productId, 'ratings._id':ratingId}, 
        {'ratings.$.likes.userId':userId})
-    .populate({ path: 'ratings.userId' })
+    .populate('ratings.userId', {_id:0, password:0, admin:false})
     .exec(function(err, product) {
         if (err)
             res.status(500).send({message: `Internal server error: ${err}`});
@@ -529,7 +530,7 @@ exports.dislikeRating = function(req,res){
 
     Product.findOne({_id:req.params.productId, 'ratings._id':ratingId}, 
        {'ratings.$.dislikes.userId':userId})
-    .populate({ path: 'ratings.userId' })
+    .populate('ratings.userId', {_id:0, password:0, admin:false})
     .exec(function(err, product) {
         console.log(product)
         if (err)
@@ -603,6 +604,7 @@ exports.reportRating = function(req,res){
 
     Product.findOne({_id:req.params.productId, 'ratings._id':ratingId}, 
        {'ratings.$.reports.userId':report.userId})
+    .populate('ratings.userId', {_id:0, password:0, admin:false})
     .exec(function(err, product) {
         console.log(product)
         if (err)
@@ -645,7 +647,7 @@ exports.reportRating = function(req,res){
 exports.getRatingsBest = function(req, res) {
     Product.findOne({_id:req.params.productId})
     //.limit(2)
-    .populate({ path: 'ratings.userId' })
+    .populate('ratings.userId', {_id:0, password:0, admin:false})
     .exec(function(err, product) {
         if (err)
             res.status(500).send({message: `Internal server error: ${err}`});
@@ -658,7 +660,7 @@ exports.getRatingsBest = function(req, res) {
 exports.getRatingsWorst = function(req, res) {
     Product.findOne({_id:req.params.productId})
     //.limit(7)
-    .populate({ path: 'ratings.userId' })
+    .populate('ratings.userId', {_id:0, password:0, admin:false})
     .exec(function(err, product) {
         if (err)
             res.status(500).send({message: `Internal server error: ${err}`});
@@ -673,7 +675,7 @@ exports.getRatingsWorst = function(req, res) {
 exports.getRatingsOld = function(req, res) {
     Product.findOne({_id:req.params.productId})
     //.limit(2)
-    .populate({ path: 'ratings.userId' })
+    .populate('ratings.userId', {_id:0, password:0, admin:false})
     .exec(function(err, product) {
         if (err)
             res.status(500).send({message: `Internal server error: ${err}`});
@@ -686,7 +688,7 @@ exports.getRatingsOld = function(req, res) {
 exports.getRatingsNew = function(req, res) {
     Product.findOne({_id:req.params.productId})
     //.limit(7)
-    .populate({ path: 'ratings.userId' })
+    .populate('ratings.userId', {_id:0, password:0, admin:false})
     .exec(function(err, product) {
         if (err)
             res.status(500).send({message: `Internal server error: ${err}`});
