@@ -11,7 +11,7 @@ router.get('/all', md_auth.ensureAuth, users.listAllUsers);
 //Get a user by email
 router.get('/email/:email', md_auth.ensureAuth, users.findByEmail);
 //Get a user by name
-router.get('/name/:name',md_auth.ensureAuth, users.findByName);
+router.get('/name/:name', users.findByName); //He quitado los tokens ya que sino un usuario sin registrar no podria ver tus datos
 
 
 //POST REQUESTS

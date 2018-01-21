@@ -80,7 +80,6 @@ exports.listAllProducts = function(req, res) {
 
 exports.getNew = function(req, res) {
     var limit = req.params.limit;
-    console.log(limit)
 
     Product.find()
     //.populate({ path: 'ratings.userId' })
@@ -96,7 +95,7 @@ exports.getNew = function(req, res) {
 };
 
 exports.findByName = function(req, res) { 
-    nameToSearch=req.params.productName
+    nameToSearch=req.params.productName;
 
     Product.find({name:{ "$regex": nameToSearch, "$options": "i" }})
     //.populate({ path: 'ratings.userId' })
@@ -124,7 +123,7 @@ exports.SearchAny = function(req, res){
         else
             res.status(200).json(products);
     });
-}
+};
 
 exports.bestProducts = function(req, res) {
     Product.find()
@@ -351,7 +350,6 @@ exports.addProduct= function(req, res) {
                 res.status(500).send({message: `Internal server error: ${err}`});
             else
                 res.status(200).json(product);
-            
         });
     }
     else
@@ -550,8 +548,9 @@ exports.dislikeRating = function(req,res){
                     disliked=true;
                 }
             }
-
+            console.log(disliked)
             if(!disliked){
+
                 for (var i=0; i<likes.length; i++){
                     if (likes[i].userId==like.userId){
                         i=likes.length;
@@ -564,7 +563,7 @@ exports.dislikeRating = function(req,res){
                 }
             }
 
-            if(!liked){
+            if(!disliked){
                 Product.findOneAndUpdate({_id:productId,'ratings._id':ratingId}, 
                     {
                         $addToSet: {'ratings.$.dislikes': like},
