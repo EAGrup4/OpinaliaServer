@@ -382,6 +382,27 @@ exports.updateProduct = function(req, res) {
         res.status(403).send({message: 'No privileges'});
 };
 
+exports.addSpec = function(req, res) {
+    var spec=req.body
+    var productId=req.params.productId;
+    tokenInfo=req.user;
+    console.log(spec)
+
+    if (!tokenInfo.admin)
+        res.status(403).send({message: 'No privileges'});
+
+    else{
+        Product.findOneAndUpdate({_id:productId}, {$addToSet: {specifications: spec}}, {new: true}, function(err, product) {
+            if (err)
+                res.status(500).send({message: `Internal server error: ${err}`}); 
+
+            else{  
+                res.status(200).json(product);
+            }
+        })
+    }
+};
+
 exports.addRating = function(req, res) {
     var rating=req.body
     var productId=req.params.productId;

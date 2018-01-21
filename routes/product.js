@@ -57,6 +57,8 @@ router.post('/add', md_auth.ensureAuth, products.addProduct);
 //UPDATE REQUESTS
 //Update a product by Id
 router.post('/:productId', md_auth.ensureAuth, products.updateProduct);
+//Delete rating from product
+router.post('/spec/:productId', md_auth.ensureAuth, products.addSpec);
 //Add rating to a product
 router.post('/rating/:productId', md_auth.ensureAuth, products.addRating);
 //Delete rating from product
