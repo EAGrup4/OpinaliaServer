@@ -5,7 +5,9 @@ var User = mongoose.model('User');
 
 var report = mongoose.Schema({
 	userId:{type:Schema.ObjectId, ref: 'User'},
-	comment: String
+	comment: String,
+	reaseon: String
+
 });
 
 var likeSchema = mongoose.Schema({
