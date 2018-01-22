@@ -34,7 +34,6 @@ exports.ensureAuthFB = function (req, res,next) {
         return res.status(403).send({message: 'Petition has not an authentication header'});
     }
     var access_token = req.headers.authorization.replace(/['"]+/g,'');
-    console.log(access_token);
     request.get(
         'https://graph.facebook.com/me?access_token='+access_token,
         function (error, response, body) {
@@ -42,7 +41,6 @@ exports.ensureAuthFB = function (req, res,next) {
             if (error) {
                 return res.status(404).send({message: 'Token not valid'});
             }else {
-                console.log(response);
                 if ((response) && (resFB.id === req.body.id)) {
                     next();
                 }else res.status(405).send({message: 'Token not valid'});

@@ -74,7 +74,7 @@ exports.uploadImage = function(req, res) {
 exports.listAllProducts = function(req, res) {
     Product.find()
     //.populate('ratings.userId', { password:0, admin:false})
-    .select({"ratings":0})
+    //.select({"ratings":0})/////////////////////////////////////////////////////////
     //.select({'ratings.userId._id':0})
     .exec(function(err, products) {
         if (err)
@@ -370,7 +370,8 @@ exports.updateProduct = function(req, res) {
     for (var f in update) {
 
         if(!update[f]){
-            delete update[f]
+            if(!update.avgRate==0)
+                    delete update[f]
         }
     }
 
@@ -431,11 +432,12 @@ exports.addRating = function(req, res) {
                     this.getAvgRate(product, function(prod){
                         delete prod._id;
                         Product.findOneAndUpdate({_id:prod._id}, prod, {new: true})
-                        .populate({ path: 'ratings.userId' })
+                        .populate('ratings.userId', { password:0, admin:false})
                         .exec(function(err, product) {
                             if (err)
                                 res.status(500).send({message: `Internal server error: ${err}`});
-                            res.status(200).json(product);
+                            else
+                                res.status(200).json(product);
                         });
                     });
                 }
@@ -460,13 +462,14 @@ exports.deleteRating = function(req, res) {
             if (err)
                 res.status(500).send({message: `Internal server error: ${err}`});
             else{
-                this.getAvgR(product, function(prod){
+                this.getAvgRate(product, function(prod){
                     Product.findOneAndUpdate({_id:prod._id}, prod, {new: true})
                     .populate('ratings.userId', { password:0, admin:false})
                     .exec(function(err, product) {
                         if (err)
                             res.status(500).send({message: `Internal server error: ${err}`});
-                        res.status(200).json(product);
+                        else
+                            res.status(200).json(product);
                     });
                 });
             }
@@ -563,6 +566,7 @@ exports.dislikeRating = function(req,res){
         console.log(product)
         if (err)
             res.status(500).send({message: `Internal server error: ${err}`});
+        //res.status(500).send(product.ratings[0]);
         else{
 
             var likes=product.ratings[0].likes;
@@ -628,46 +632,73 @@ exports.reportRating = function(req,res){
     var report=req.body;
     var reportUser=req.user.sub;
     report.userId=reportUser;
-    console.log(report.userId)
+    var rating={};
+    rating._id=ratingId;
+    console.log(rating)
 
     Product.findOne({_id:req.params.productId, 'ratings._id':ratingId}, 
        {'ratings.$.reports.userId':report.userId})
     .populate('ratings.userId', { password:0, admin:false})
     .exec(function(err, product) {
-        console.log(product)
+        //console.log(product)
         if (err)
             res.status(500).send({message: `Internal server error: ${err}`});
+        //res.status(500).send(rating);
         else{
-
-            var reports=product.ratings[0].reports;
-            var reported=false;
-
-            for (var i=0; i<reports.length; i++){
-                if (reports[i].userId==report.userId){
-                    i=reports.length;
-                    reported=true;
-                }
-            }
-
-            if(!reported){
-                Product.findOneAndUpdate({_id:productId,'ratings._id':ratingId}, 
-                    {$addToSet: {'ratings.$.reports': report},$inc: {'ratings.$.numReport': 1}}, 
-                    {new: true}, function(err, product) {
-
+            if(product){
+                var rating=product.ratings[0];
+                if(rating.numReport==4){
+                    var rate={};
+                    rate._id=ratingId;
+                    console.log("hola")
+                    Product.findOneAndUpdate({_id:productId}, {$pull: {ratings: rate}}, {new: true}, function(err, product) {
                         if (err)
-                            res.status(500).send({message: `Internal server error: ${err}`}); 
-
-                        else{           
-
-                            res.status(200).send(product);
-
+                            res.status(500).send({message: `Internal server error: ${err}`});
+                        else{
+                            this.getAvgRate(product, function(prod){
+                                Product.findOneAndUpdate({_id:prod._id}, prod, {new: true})
+                                .populate('ratings.userId', { password:0, admin:false})
+                                .exec(function(err, product) {
+                                    if (err)
+                                        res.status(500).send({message: `Internal server error: ${err}`});
+                                    else
+                                     res.status(200).json(product);
+                                });
+                            });
                         }
-                    })
-            }
-           //res.status(409).send({message: `Already reported`});
-           else{
-            res.status(409).send({message: `Already reported`});
-            }
+                    });
+                }
+                else{
+                    var reports=product.ratings[0].reports;
+                    var reported=false;
+
+                    for (var i=0; i<reports.length; i++){
+                        if (reports[i].userId==report.userId){
+                            i=reports.length;
+                            reported=true;
+                        }
+                    }
+                    if(!reported){
+                        Product.findOneAndUpdate({_id:productId,'ratings._id':ratingId}, 
+                            {$addToSet: {'ratings.$.reports': report},$inc: {'ratings.$.numReport': 1}}, 
+                            {new: true}, function(err, product) {
+
+                                if (err)
+                                    res.status(500).send({message: `Internal server error: ${err}`}); 
+
+                                else{           
+                                    res.status(200).send(product);
+
+                                }
+                            })
+                    }
+                   //res.status(409).send({message: `Already reported`});
+                   else{
+                    res.status(409).send({message: `Already reported`});
+                    }
+                }
+            }else
+                res.status(404).send({message: `Not found`});
         }
     });
 }
@@ -790,7 +821,7 @@ exports.delAllUserRates = function(userId, products, callback){
                 console.log("error", err)
             }
             else{
-                this.getAvgR(product, function(prod){
+                this.getAvgRate(product, function(prod){
                     Product.findOneAndUpdate({_id:prod._id}, prod, {new: true})
                     .populate({ path: 'ratings.userId' })
                     .exec(function(err, product) {
